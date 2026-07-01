@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 import {
   humanazePointDueDate,
   formatMachineDate,
@@ -7,7 +7,7 @@ import {
   getEventDuration,
   getTypeOffers,
   getCapitalaizedType
-} from '../utils.js';
+} from '../utils/point';
 
 const createOffersTemplate = (type, offers, offersData) => {
   const currentOffers = getTypeOffers(offersData, type);
@@ -90,24 +90,25 @@ const createTemplate = (pointData, offersData) => {
             </li>`;
 };
 
-export default class PointTripEvent {
-  constructor({ point, offers }) {
-    this.point = point;
-    this.offers = offers;
+export default class PointTripEvent extends AbstractView {
+  #point = null;
+  #offers = [];
+  #handleFormEditBtnClick = null;
+
+  constructor({ point, offers, onFormEditBtnClick }) {
+    super();
+    this.#point = point;
+    this.#offers = offers;
+    this.#handleFormEditBtnClick = onFormEditBtnClick;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
   }
 
-  getTemplate() {
-    return createTemplate(this.point, this.offers);
+  get template() {
+    return createTemplate(this.#point, this.#offers);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormEditBtnClick();
+  };
 }
