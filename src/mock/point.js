@@ -1,5 +1,6 @@
 import { POINT__TYPE } from '../const';
-import { getRandomArrayElement, getRandomInteger, getTypeOffers } from '../utils';
+import { getTypeOffers } from '../utils/point';
+import { getRandomArrayElement, getRandomInteger } from '../utils/common';
 import dayjs from 'dayjs';
 
 const destinationsData = [
