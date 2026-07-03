@@ -2,7 +2,7 @@ import ListTripEvents from '../view/list-trip-view.js';
 import PointTripEvent from '../view/point-trip-view.js';
 import FormEditEvent from '../view/form-edit-view.js';
 import SortView from '../view/sort-view.js';
-// import ListEmpty from '../view/no-point-view.js'; // - ДЗ 4.17
+import ListEmpty from '../view/no-point-view.js'; // - ДЗ 4.17
 import { render, replace } from '../framework/render.js';
 
 export default class ListPresenter {
@@ -31,10 +31,10 @@ export default class ListPresenter {
   }
 
   #renderList() {
-    // if (this.#listPoints.length === 0) {
-    //   render(new ListEmpty(), this.#listContainer);
-    //   return;
-    // }
+    if (this.#listPoints.length === 0) {
+      render(new ListEmpty(), this.#listContainer);
+      return;
+    }
 
     render(this.#sortComponent, this.#listContainer);
 
