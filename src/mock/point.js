@@ -1,5 +1,5 @@
 import { POINT__TYPE } from '../const';
-import { getTypeOffers } from '../utils/point';
+import { getTypeOffers } from '../utils/point-utils';
 import { getRandomArrayElement, getRandomInteger } from '../utils/common';
 import dayjs from 'dayjs';
 import { nanoid } from 'nanoid';
@@ -302,7 +302,7 @@ const generatePoint = () => {
     destination: getRandomDestination(destinationsData),
     dateFrom: dates.dateFrom,
     dateTo: dates.dateTo,
-    price: 20,
+    price: Math.floor(Math.random() * 1000),
     offers: getRandomOffer(offersData, currentPointType),
     isFavorite: false,
   };
