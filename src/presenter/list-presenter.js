@@ -1,9 +1,11 @@
 import ListTripEvents from '../view/list-trip-view.js';
-import PointTripEvent from '../view/point-trip-view.js';
-import FormEditEvent from '../view/form-edit-view.js';
+// import PointTripEvent from '../view/point-trip-view.js';
+// import FormEditEvent from '../view/form-edit-view.js';
 import SortView from '../view/sort-view.js';
-import ListEmpty from '../view/no-point-view.js'; // - ДЗ 4.17
-import { render, replace } from '../framework/render.js';
+import ListEmpty from '../view/no-point-view.js';
+import PointPresenter from './point-presenter.js';
+import { render } from '../framework/render.js';
+import { updateItem } from '../utils/common.js';
 
 export default class ListPresenter {
   #listContainer = null;
@@ -14,6 +16,7 @@ export default class ListPresenter {
   #listPoints = [];
   #listOffers = [];
   #listDestinations = [];
+  #listPointPresenters = new Map();
   // formEditComponent = new FormEditEvent();
 
   constructor({ container, pointsModel }) {
@@ -51,40 +54,68 @@ export default class ListPresenter {
   }
 
   #renderPoint(point, offers, destinations) {
-    const escKeyDownHandler = (evt) => {
-      if (evt.key === 'Escape') {
-        evt.preventDefault();
-        replaceFormToPoint();
-      }
-    };
-
-    const pointComponent = new PointTripEvent({
-      point,
+    const pointPresenter = new PointPresenter({
+      listEventComponent: this.#listEventComponent.element,
       offers,
       destinations,
-      onFormEditBtnClick: () => {
-        replacePointToForm();
-        document.addEventListener('keydown', escKeyDownHandler);
-      }
+      onDataChange: this.#handlePointChange,
+      onModeChange: this.#handleModeChange
     });
 
-    const formEditComponent = new FormEditEvent({
-      point,
-      offers,
-      destinations,
-      onFormSubmit: () => { },
-      onFormBtnCloseClick: () => replaceFormToPoint(),
-    });
+    pointPresenter.init(point);
 
-    function replacePointToForm() {
-      replace(formEditComponent, pointComponent);
-    }
+    this.#listPointPresenters.set(point.id, pointPresenter);
+    // const escKeyDownHandler = (evt) => {
+    //   if (evt.key === 'Escape') {
+    //     evt.preventDefault();
+    //     replaceFormToPoint();
+    //   }
+    // };
 
-    function replaceFormToPoint() {
-      replace(pointComponent, formEditComponent);
-      document.removeEventListener('keydown', escKeyDownHandler);
-    }
+    // const pointComponent = new PointTripEvent({
+    //   point,
+    //   offers,
+    //   destinations,
+    //   onFormEditBtnClick: () => {
+    //     replacePointToForm();
+    //     document.addEventListener('keydown', escKeyDownHandler);
+    //   }
+    // });
 
-    render(pointComponent, this.#listEventComponent.element);
+    // const formEditComponent = new FormEditEvent({
+    //   point,
+    //   offers,
+    //   destinations,
+    //   onFormSubmit: () => { },
+    //   onFormBtnCloseClick: () => replaceFormToPoint(),
+    // });
+
+    // function replacePointToForm() {
+    //   replace(formEditComponent, pointComponent);
+    // }
+
+    // function replaceFormToPoint() {
+    //   replace(pointComponent, formEditComponent);
+    //   document.removeEventListener('keydown', escKeyDownHandler);
+    // }
+
+    // render(pointComponent, this.#listEventComponent.element);
   }
+
+  #clearListPoint() {
+    this.#listPointPresenters.forEach((presenter) => {
+      presenter.destroy();
+    });
+
+    this.#listPointPresenters.clear();
+  }
+
+  #handlePointChange = (updatePoint) => {
+    this.#listPoints = updateItem(this.#listPoints, updatePoint);
+    this.#listPointPresenters.get(updatePoint.id).init(updatePoint);
+  };
+
+  #handleModeChange = () => {
+    this.#listPointPresenters.forEach((presenter) => presenter.resetView());
+  };
 }
