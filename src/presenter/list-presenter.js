@@ -9,17 +9,17 @@ import { SortType } from '../const.js';
 
 export default class ListPresenter {
   #listContainer = null;
-  #listEventComponent = new ListTripEvents();
-  // #sortComponent = new SortView();
   #sortComponent = null;
+  #listEventComponent = new ListTripEvents();
+  #currentSortType = SortType.DAY;
 
   #pointsModel = {};
   #listPoints = [];
+  #sourcedListPoints = [];
   #listOffers = [];
   #listDestinations = [];
+
   #listPointPresenters = new Map();
-  #currentSortType = SortType.DAY;
-  #sourcedListPoints = [];
   // formEditComponent = new FormEditEvent();
 
   constructor({ container, pointsModel }) {
@@ -60,16 +60,6 @@ export default class ListPresenter {
     this.#currentSortType = sortType;
   }
 
-  #handleSortChange = (sortType) => {
-    if (this.#currentSortType === sortType) {
-      return;
-    }
-
-    this.#sortPoints(sortType);
-    this.#clearListPoint();
-    this.#renderList();
-  };
-
   #renderList() {
     if (this.#listPoints.length === 0) {
       render(new ListEmpty(), this.#listContainer);
@@ -77,7 +67,7 @@ export default class ListPresenter {
     }
 
     //отрисоваваю контейнер списка - <ul></ul>
-    render(this.#listEventComponent, this.#listContainer);
+    this.#renderContainerList();
 
     for (let i = 0; i < this.#listPoints.length; i += 1) {
       this.#renderPoint(
@@ -86,6 +76,10 @@ export default class ListPresenter {
         this.#listDestinations,
       );
     }
+  }
+
+  #renderContainerList() {
+    render(this.#listEventComponent, this.#listContainer);
   }
 
   #renderPoint(point, offers, destinations) {
@@ -109,6 +103,16 @@ export default class ListPresenter {
 
     this.#listPointPresenters.clear();
   }
+
+  #handleSortChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortPoints(sortType);
+    this.#clearListPoint();
+    this.#renderList();
+  };
 
   #handlePointChange = (updatePoint) => {
     this.#listPoints = updateItem(this.#listPoints, updatePoint);
