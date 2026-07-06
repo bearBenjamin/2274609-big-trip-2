@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view.js';
-import { getCapitalaizedType, formatFormDateTime, getTypeOffers } from '../utils/point';
+import { getCapitalaizedType, formatFormDateTime, getTypeOffers } from '../utils/point-utils.js';
 
 const createOffersTemplate = (type, offers, offersData) => {
   const currentOffers = getTypeOffers(offersData, type);
@@ -91,28 +91,27 @@ const createDestinationListTemplate = (destinationsData) => {
   return templateListCity;
 };
 
-const createTemplate =
-  (point, offersData, destinationsData) => {
-    const { type, dateFrom, dateTo, price, offers, destination } = point;
+const createTemplate = (point, offersData, destinationsData) => {
+  const { type, dateFrom, dateTo, price, offers, destination } = point;
 
-    const { name, description, pictures } = destination;
+  const { name, description, pictures } = destination;
 
-    const capitalizedType = getCapitalaizedType(type);
+  const capitalizedType = getCapitalaizedType(type);
 
-    const nameCity = name.length !== 0 ? name : '';
+  const nameCity = name.length !== 0 ? name : '';
 
-    const dateStart = formatFormDateTime(dateFrom);
-    const dateEnd = formatFormDateTime(dateTo);
+  const dateStart = formatFormDateTime(dateFrom);
+  const dateEnd = formatFormDateTime(dateTo);
 
-    const templateSectionOffers = createOffersTemplate(type, offers, offersData);
+  const templateSectionOffers = createOffersTemplate(type, offers, offersData);
 
-    const templateListType = createOffersTypeListTemplate(offersData);
+  const templateListType = createOffersTypeListTemplate(offersData);
 
-    const templateListCity = createDestinationListTemplate(destinationsData);
+  const templateListCity = createDestinationListTemplate(destinationsData);
 
-    const templateSectionDescription = createDescriptionTemplate(description, pictures);
+  const templateSectionDescription = createDescriptionTemplate(description, pictures);
 
-    return `<li class="trip-events__item">
+  return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
                 <header class="event__header">
                   <div class="event__type-wrapper">
@@ -162,7 +161,7 @@ const createTemplate =
                 </section>
               </form>
             </li>`;
-  };
+};
 export default class FormEditEvent extends AbstractView {
   #point = null;
   #offers = [];

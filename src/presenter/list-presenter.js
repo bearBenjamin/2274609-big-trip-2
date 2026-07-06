@@ -1,21 +1,24 @@
 import ListTripEvents from '../view/list-trip-view.js';
-// import PointTripEvent from '../view/point-trip-view.js';
-// import FormEditEvent from '../view/form-edit-view.js';
 import SortView from '../view/sort-view.js';
 import ListEmpty from '../view/no-point-view.js';
 import PointPresenter from './point-presenter.js';
 import { render } from '../framework/render.js';
 import { updateItem } from '../utils/common.js';
+import { sortTime, sortPrice, sortDay } from '../utils/point-utils.js';
+import { SortType } from '../const.js';
 
 export default class ListPresenter {
   #listContainer = null;
+  #sortComponent = null;
   #listEventComponent = new ListTripEvents();
-  #sortComponent = new SortView();
+  #currentSortType = SortType.DAY;
 
   #pointsModel = {};
   #listPoints = [];
+  #sourcedListPoints = [];
   #listOffers = [];
   #listDestinations = [];
+
   #listPointPresenters = new Map();
   // formEditComponent = new FormEditEvent();
 
@@ -26,11 +29,35 @@ export default class ListPresenter {
 
   init() {
     // делаю копию массива точек, чтобы случайно не мутировать данные - это временное решение
-    this.#listPoints = [...this.#pointsModel.points];
+    this.#listPoints = [...this.#pointsModel.points].sort(sortDay); // в моках даты формируются случайно поэтому сортирую
     this.#listOffers = [...this.#pointsModel.offers];
     this.#listDestinations = [...this.#pointsModel.destinations];
+    this.#sourcedListPoints = [...this.#pointsModel.points].sort(sortDay); // в моках даты формируются случайно поэтому сортирую
 
+    this.#renderSort();
     this.#renderList();
+  }
+
+  #renderSort() {
+    this.#sortComponent = new SortView({
+      onSortTypeChange: this.#handleSortChange,
+    });
+    render(this.#sortComponent, this.#listContainer);
+  }
+
+  #sortPoints(sortType) {
+    switch (sortType) {
+      case SortType.TIME:
+        this.#listPoints.sort(sortTime);
+        break;
+      case SortType.PRICE:
+        this.#listPoints.sort(sortPrice);
+        break;
+      default:
+        this.#listPoints = [...this.#sourcedListPoints]; // в моках даты как бог на душу послал поэтому и здесь соритрую
+    }
+
+    this.#currentSortType = sortType;
   }
 
   #renderList() {
@@ -39,10 +66,8 @@ export default class ListPresenter {
       return;
     }
 
-    render(this.#sortComponent, this.#listContainer);
-
     //отрисоваваю контейнер списка - <ul></ul>
-    render(this.#listEventComponent, this.#listContainer);
+    this.#renderContainerList();
 
     for (let i = 0; i < this.#listPoints.length; i += 1) {
       this.#renderPoint(
@@ -51,6 +76,10 @@ export default class ListPresenter {
         this.#listDestinations,
       );
     }
+  }
+
+  #renderContainerList() {
+    render(this.#listEventComponent, this.#listContainer);
   }
 
   #renderPoint(point, offers, destinations) {
@@ -65,41 +94,6 @@ export default class ListPresenter {
     pointPresenter.init(point);
 
     this.#listPointPresenters.set(point.id, pointPresenter);
-    // const escKeyDownHandler = (evt) => {
-    //   if (evt.key === 'Escape') {
-    //     evt.preventDefault();
-    //     replaceFormToPoint();
-    //   }
-    // };
-
-    // const pointComponent = new PointTripEvent({
-    //   point,
-    //   offers,
-    //   destinations,
-    //   onFormEditBtnClick: () => {
-    //     replacePointToForm();
-    //     document.addEventListener('keydown', escKeyDownHandler);
-    //   }
-    // });
-
-    // const formEditComponent = new FormEditEvent({
-    //   point,
-    //   offers,
-    //   destinations,
-    //   onFormSubmit: () => { },
-    //   onFormBtnCloseClick: () => replaceFormToPoint(),
-    // });
-
-    // function replacePointToForm() {
-    //   replace(formEditComponent, pointComponent);
-    // }
-
-    // function replaceFormToPoint() {
-    //   replace(pointComponent, formEditComponent);
-    //   document.removeEventListener('keydown', escKeyDownHandler);
-    // }
-
-    // render(pointComponent, this.#listEventComponent.element);
   }
 
   #clearListPoint() {
@@ -110,8 +104,19 @@ export default class ListPresenter {
     this.#listPointPresenters.clear();
   }
 
+  #handleSortChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortPoints(sortType);
+    this.#clearListPoint();
+    this.#renderList();
+  };
+
   #handlePointChange = (updatePoint) => {
     this.#listPoints = updateItem(this.#listPoints, updatePoint);
+    this.#sourcedListPoints = updateItem(this.#sourcedListPoints, updatePoint);
     this.#listPointPresenters.get(updatePoint.id).init(updatePoint);
   };
 
