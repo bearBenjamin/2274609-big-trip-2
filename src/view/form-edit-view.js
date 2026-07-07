@@ -1,4 +1,5 @@
-import AbstractView from '../framework/view/abstract-view.js';
+// import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { getCapitalaizedType, formatFormDateTime, getTypeOffers } from '../utils/point-utils.js';
 
 const createOffersTemplate = (type, offers, offersData) => {
@@ -47,7 +48,6 @@ const createPhotosTemplate = (photos) => {
 };
 
 const createDescriptionTemplate = (description, pictures) => {
-
   const hasDescription = Boolean(description && description.length > 0);
   const hasPictures = Boolean(pictures && pictures.length > 0);
 
@@ -68,12 +68,16 @@ const createDescriptionTemplate = (description, pictures) => {
   return templateSectionDescription;
 };
 
-const createOffersTypeListTemplate = (offersData) => {
+const createOffersTypeListTemplate = (type, offersData) => {
 
-  const listType = offersData.map((offer) => `<div class="event__type-item">
-                          <input id="event-type-${offer.type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offer.type}">
+  const listType = offersData.map((offer) => {
+    const isChecked = type === offer.type ? 'cheked' : '';
+    const itemList = `<div class="event__type-item">
+                          <input id="event-type-${offer.type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${offer.type}" ${isChecked}>
                           <label class="event__type-label  event__type-label--${offer.type}" for="event-type-${offer.type}-1">${offer.type}</label>
-                        </div>`).join('');
+                        </div>`;
+    return itemList;
+  }).join('');
 
   const templateListType = `<div class="event__type-list">
                       <fieldset class="event__type-group">
@@ -105,7 +109,7 @@ const createTemplate = (point, offersData, destinationsData) => {
 
   const templateSectionOffers = createOffersTemplate(type, offers, offersData);
 
-  const templateListType = createOffersTypeListTemplate(offersData);
+  const templateListType = createOffersTypeListTemplate(type, offersData);
 
   const templateListCity = createDestinationListTemplate(destinationsData);
 
@@ -162,8 +166,9 @@ const createTemplate = (point, offersData, destinationsData) => {
               </form>
             </li>`;
 };
-export default class FormEditEvent extends AbstractView {
-  #point = null;
+
+export default class FormEditEvent extends AbstractStatefulView {
+  // #point = null;
   #offers = [];
   #destinations = [];
   #handleFormSubmitClick = null;
@@ -171,25 +176,82 @@ export default class FormEditEvent extends AbstractView {
 
   constructor({ point, offers, destinations, onFormSubmit, onFormBtnCloseClick }) {
     super();
-    this.#point = point;
+    // this.#point = point;
+    this._setState(FormEditEvent.parsePointToState(point));
     this.#offers = offers;
     this.#destinations = destinations;
     this.#handleFormSubmitClick = onFormSubmit;
-    this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
     this.#handleFormBtnCloseClick = onFormBtnCloseClick;
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formBtnCloseHandler);
+    this._restoreHandlers();
   }
 
   get template() {
-    return createTemplate(this.#point, this.#offers, this.#destinations);
+    return createTemplate(/*this.#point*/ this._state, this.#offers, this.#destinations);
   }
+
+  reset(point) {
+    this.updateElement(FormEditEvent.parsePointToState(point));
+  }
+
+  _restoreHandlers = () => {
+    this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
+
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formBtnCloseHandler);
+
+    this.element.querySelector('.event__type-list').addEventListener('change', this.#typeChangeHandler);
+
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
+  };
+
+  #typeChangeHandler = (evt) => {
+    evt.preventDefault();
+    const userType = evt.target.value;
+
+    this._setState({
+      type: userType,
+    });
+
+    this.updateElement({
+      type: userType,
+      offers: [], // Сбрасываем выбранные офферы, так как у нового типа будут свои опции
+    });
+  };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmitClick(this.#point);
+    const updatePoint = FormEditEvent.parseStateToPoint(this._state);
+    this.#handleFormSubmitClick(updatePoint);
   };
 
   #formBtnCloseHandler = () => {
     this.#handleFormBtnCloseClick();
   };
+
+  #destinationChangeHandler = (evt) => {
+    evt.preventDefault();
+    const userDestinationName = evt.target.value;
+
+    const currentDestination = this.#destinations.find((destination) => destination.name === userDestinationName);
+
+    if (!currentDestination) {
+      return;
+    }
+
+    this._setState({
+      destination: currentDestination,
+    });
+
+    this.updateElement({
+      destination: currentDestination,
+    });
+  };
+
+  static parsePointToState(point) {
+    return { ...point };
+  }
+
+  static parseStateToPoint(state) {
+    const point = { ...state };
+    return point;
+  }
 }

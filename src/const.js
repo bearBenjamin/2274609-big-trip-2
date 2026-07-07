@@ -11,7 +11,7 @@ const POINT__TYPE = [
 ];
 
 const FilterType = {
-  EVERITHING: 'all',
+  EVERITHING: 'everithing',
   FUTURE: 'future',
   PRESENT: 'present',
   PAST: 'past',
