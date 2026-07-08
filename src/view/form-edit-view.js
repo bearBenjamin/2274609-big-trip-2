@@ -1,4 +1,3 @@
-// import AbstractView from '../framework/view/abstract-view.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { getCapitalaizedType, formatFormDateTime, getTypeOffers } from '../utils/point-utils.js';
 
@@ -27,7 +26,6 @@ const createOffersTemplate = (type, offers, offersData) => {
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
                     <div class="event__available-offers">${listOffers}</div>
                   </section>`;
-
   return templateSectionOffers;
 };
 
@@ -43,7 +41,6 @@ const createPhotosTemplate = (photos) => {
                         ${listPhotos}
                       </div>
                     </div>`;
-
   return templatePhotos;
 };
 
@@ -64,7 +61,6 @@ const createDescriptionTemplate = (description, pictures) => {
                     ${templateDescription}
                     ${templatePhotos}
                   </section>` : '';
-
   return templateSectionDescription;
 };
 
@@ -85,7 +81,6 @@ const createOffersTypeListTemplate = (type, offersData) => {
                         ${listType}
                         </fieldset>
                     </div>`;
-
   return templateListType;
 };
 
@@ -168,7 +163,6 @@ const createTemplate = (point, offersData, destinationsData) => {
 };
 
 export default class FormEditEvent extends AbstractStatefulView {
-  // #point = null;
   #offers = [];
   #destinations = [];
   #handleFormSubmitClick = null;
@@ -176,7 +170,6 @@ export default class FormEditEvent extends AbstractStatefulView {
 
   constructor({ point, offers, destinations, onFormSubmit, onFormBtnCloseClick }) {
     super();
-    // this.#point = point;
     this._setState(FormEditEvent.parsePointToState(point));
     this.#offers = offers;
     this.#destinations = destinations;
@@ -186,7 +179,7 @@ export default class FormEditEvent extends AbstractStatefulView {
   }
 
   get template() {
-    return createTemplate(/*this.#point*/ this._state, this.#offers, this.#destinations);
+    return createTemplate(this._state, this.#offers, this.#destinations);
   }
 
   reset(point) {

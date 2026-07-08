@@ -277,11 +277,11 @@ const generatePointDates = () => {
 const getRandomDestination = (destinations) => getRandomArrayElement(destinations);
 
 const getRandomOffer = (offers, type) => {
-  const currentOffers = getTypeOffers(offers, type); // получаю объект из массива соответствующего типа
-  const id = currentOffers.offers // в текущем объекте работаю с содержимым по ключу offers - массивом доп.предложений
-    .filter(() => Math.random() > 0.5) // массив доп.предложений фильтрую 50 на 50 (собираю массив из случайных доп.предложений)
-    .map((offer) => offer.id); // выбираю из отфильтрованного массива только значения по ключу id;
-  return id; // в точке в ключ offers уходят только id доп.предложений если они есть либо пустой массив
+  const currentOffers = getTypeOffers(offers, type);
+  const id = currentOffers.offers
+    .filter(() => Math.random() > 0.5)
+    .map((offer) => offer.id);
+  return id;
 };
 
 const generatePoint = () => {
