@@ -24,11 +24,10 @@ export default class ListPresenter {
 
   constructor({ container, pointsModel }) {
     this.#listContainer = container; // container - tripEventsContainer приходит из точки входа - контейнер для списка точек путешествия;
-    this.#pointsModel = pointsModel; // массив точек путешествия;
+    this.#pointsModel = pointsModel;
   }
 
   init() {
-    // делаю копию массива точек, чтобы случайно не мутировать данные - это временное решение
     this.#listPoints = [...this.#pointsModel.points].sort(sortDay); // в моках даты формируются случайно поэтому сортирую
     this.#listOffers = [...this.#pointsModel.offers];
     this.#listDestinations = [...this.#pointsModel.destinations];
