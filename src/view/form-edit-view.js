@@ -1,5 +1,7 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { getCapitalaizedType, formatFormDateTime, getTypeOffers } from '../utils/point-utils.js';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
 const createOffersTemplate = (type, offers, offersData) => {
   const currentOffers = getTypeOffers(offersData, type);
@@ -128,16 +130,16 @@ const createTemplate = (point, offersData, destinationsData) => {
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${capitalizedType}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${nameCity}" list="destination-list-1">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${nameCity}" list="destination-list-1" autocomplete="off">
                      ${templateListCity}
                   </div>
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateStart}">
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateStart}" readonly>
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateEnd}">
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateEnd}" readonly>
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -168,6 +170,9 @@ export default class FormEditEvent extends AbstractStatefulView {
   #handleFormSubmitClick = null;
   #handleFormBtnCloseClick = null;
 
+  #datepickerFrom = null;
+  #datepickerTo = null;
+
   constructor({ point, offers, destinations, onFormSubmit, onFormBtnCloseClick }) {
     super();
     this._setState(FormEditEvent.parsePointToState(point));
@@ -186,6 +191,20 @@ export default class FormEditEvent extends AbstractStatefulView {
     this.updateElement(FormEditEvent.parsePointToState(point));
   }
 
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.destroy();
+      this.#datepickerFrom = null;
+    }
+
+    if (this.#datepickerTo) {
+      this.#datepickerTo.destroy();
+      this.#datepickerTo = null;
+    }
+  }
+
   _restoreHandlers = () => {
     this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
 
@@ -194,6 +213,66 @@ export default class FormEditEvent extends AbstractStatefulView {
     this.element.querySelector('.event__type-list').addEventListener('change', this.#typeChangeHandler);
 
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
+
+    //Календари пересоздаются при каждом обновлении DOM-элемента
+    this.#setDatepickers();
+  };
+
+  // метод инициализации flatpickr
+  #setDatepickers = () => {
+    const dateStartElement = this.element.querySelector('.event__input--time[name="event-start-time"]');
+    const dateEndElement = this.element.querySelector('.event__input--time[name="event-end-time"]');
+
+    const commonConfig = {
+      enableTime: true,
+      'time_24hr': true,
+      dateFormat: 'd/m/y H:i',
+      allowInput: false,
+      disableMobile: true,
+    };
+
+    // Настройка для даты начала
+    this.#datepickerFrom = flatpickr(dateStartElement, {
+      ...commonConfig,
+      defaultDate: this._state.dateFrom,
+      minDate: new Date(),
+      onChange: this.#dateFromChangeHandler, // метод вызываемый при изменении даты начала
+    });
+
+    // Настройка для даты окончания
+    this.#datepickerTo = flatpickr(dateEndElement, {
+      ...commonConfig,
+      defaultDate: this._state.dateTo,
+      minDate: this._state.dateFrom, // Запрещаю выбирать дату окончания раньше даты начала
+      onChange: this.#dateToChangeHandler,// метод вызываемы при изменении даты окончания
+    });
+  };
+
+  // Обработчик изменения даты начала
+  #dateFromChangeHandler = ([userDate]) => {
+    if (!userDate) {
+      return;
+    }
+
+    // Обновляю минимальную дату для поля окончания события путешествия
+    this.#datepickerTo.set('minDate', userDate);
+
+    // Сохраняю изменение в стейт без перерисовки (ведь инпут уже обновился сам)
+    this._setState({
+      dateFrom: userDate.toISOString(),
+    });
+  };
+
+  // Обработчик изменения даты окончания
+  #dateToChangeHandler = ([userDate]) => {
+    if (!userDate) {
+      return;
+    }
+
+    // Сохраняю изменение в стейт без перерисовки
+    this._setState({
+      dateTo: userDate.toISOString(),
+    });
   };
 
   #typeChangeHandler = (evt) => {
@@ -212,6 +291,14 @@ export default class FormEditEvent extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
+    // Собираю актуальный массив выбранных офферов
+    const checkedBoxes = this.element.querySelectorAll('.event__offer-checkbox:checked');
+    const selectedOffers = Array.from(checkedBoxes).map((box) => Number(box.dataset.offerId));
+
+    this._setState({
+      offers: selectedOffers
+    });
+
     const updatePoint = FormEditEvent.parseStateToPoint(this._state);
     this.#handleFormSubmitClick(updatePoint);
   };
