@@ -168,17 +168,19 @@ export default class FormEditEvent extends AbstractStatefulView {
   #offers = [];
   #destinations = [];
   #handleFormSubmitClick = null;
+  #handleBtnDeleteClick = null;
   #handleFormBtnCloseClick = null;
 
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  constructor({ point, offers, destinations, onFormSubmit, onFormBtnCloseClick }) {
+  constructor({ point, offers, destinations, onFormSubmit, onPointDeleteClick, onFormBtnCloseClick }) {
     super();
     this._setState(FormEditEvent.parsePointToState(point));
     this.#offers = offers;
     this.#destinations = destinations;
     this.#handleFormSubmitClick = onFormSubmit;
+    this.#handleBtnDeleteClick = onPointDeleteClick;
     this.#handleFormBtnCloseClick = onFormBtnCloseClick;
     this._restoreHandlers();
   }
@@ -207,6 +209,8 @@ export default class FormEditEvent extends AbstractStatefulView {
 
   _restoreHandlers = () => {
     this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
+
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#btnDeleteHandler);
 
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formBtnCloseHandler);
 
@@ -301,6 +305,11 @@ export default class FormEditEvent extends AbstractStatefulView {
 
     const updatePoint = FormEditEvent.parseStateToPoint(this._state);
     this.#handleFormSubmitClick(updatePoint);
+  };
+
+  #btnDeleteHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleBtnDeleteClick(FormEditEvent.parseStateToPoint(this._state));
   };
 
   #formBtnCloseHandler = () => {

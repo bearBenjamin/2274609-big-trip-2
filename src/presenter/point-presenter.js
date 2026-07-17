@@ -48,6 +48,7 @@ export default class PointPresenter {
       offers: this.#offers,
       destinations: this.#destinations,
       onFormSubmit: this.#handleFormSubmit,
+      onPointDeleteClick: this.#handleBtnDeleteClick,
       onFormBtnCloseClick: this.#handleFormBtnCloseClick,
     });
 
@@ -116,6 +117,14 @@ export default class PointPresenter {
       UserAction.UPDATE__POINT,
       UpdateType.PATCH,
       point,
+    );
+  };
+
+  #handleBtnDeleteClick = (point) => {
+    this.#handleDataChange(
+      UserAction.DELETE__POINT,
+      UpdateType.MINOR,
+      point
     );
   };
 
