@@ -2,6 +2,8 @@ import ListPresenter from './presenter/list-presenter.js';
 import TripInfoView from './view/trip-info-view.js';
 import FilterView from './view/filter-view.js';
 import PointsModel from './model/points-model.js';
+import OffesModel from './model/offers-model.js';
+import DestinationsModel from './model/destinations-model.js';
 import { generateFilter } from './mock/filter.js';
 import { render, RenderPosition } from './framework/render.js';
 import { offersData, destinationsData } from './mock/point.js';
@@ -16,6 +18,8 @@ const tripEventsContainer = main.querySelector('.trip-events');
 const tripInfoComponent = new TripInfoView();
 
 const pointsModel = new PointsModel(offersData, destinationsData);
+const offersModel = new OffesModel();
+const destinationsModel = new DestinationsModel();
 
 const points = pointsModel.points;
 const filtersData = generateFilter(points);
@@ -28,6 +32,8 @@ render(filterComponent, filterContainer);
 const ListComponent = new ListPresenter({
   container: tripEventsContainer,
   pointsModel,
+  offersModel,
+  destinationsModel
 });
 
 ListComponent.init();
