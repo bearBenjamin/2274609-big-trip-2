@@ -3,7 +3,7 @@ import SortView from '../view/sort-view.js';
 import ListEmpty from '../view/no-point-view.js';
 import PointPresenter from './point-presenter.js';
 import { render } from '../framework/render.js';
-import { updateItem } from '../utils/common.js';
+// import { updateItem } from '../utils/common.js';
 import { sortTime, sortPrice, sortDay } from '../utils/point-utils.js';
 import { SortType } from '../const.js';
 
@@ -16,10 +16,6 @@ export default class ListPresenter {
   #pointsModel = {};
   #offerModel = [];
   #destinationsModel = [];
-  // #listPoints = [];
-  // #sourcedListPoints = [];
-  // #listOffers = [];
-  // #listDestinations = [];
 
   #listPointPresenters = new Map();
   // formEditComponent = new FormEditEvent();
@@ -29,6 +25,8 @@ export default class ListPresenter {
     this.#pointsModel = pointsModel;
     this.#offerModel = offersModel;
     this.#destinationsModel = destinationsModel;
+
+    this.#pointsModel.addObserver(this.#handleModelEvent);
   }
 
   get points() {
@@ -52,11 +50,6 @@ export default class ListPresenter {
   }
 
   init() {
-    // this.#listPoints = [...this.#pointsModel.points].sort(sortDay); // в моках даты формируются случайно поэтому сортирую
-    // this.#listOffers = [...this.#pointsModel.offers];
-    // this.#listDestinations = [...this.#pointsModel.destinations];
-    // this.#sourcedListPoints = [...this.#pointsModel.points].sort(sortDay); // в моках даты формируются случайно поэтому сортирую
-
     this.#renderSort();
     this.#renderList();
   }
@@ -67,21 +60,6 @@ export default class ListPresenter {
     });
     render(this.#sortComponent, this.#listContainer);
   }
-
-  // #sortPoints(sortType) {
-  //   switch (sortType) {
-  //     case SortType.TIME:
-  //       this.#listPoints.sort(sortTime);
-  //       break;
-  //     case SortType.PRICE:
-  //       this.#listPoints.sort(sortPrice);
-  //       break;
-  //     default:
-  //       this.#listPoints = [...this.#sourcedListPoints]; // в моках даты как бог на душу послал поэтому и здесь соритрую
-  //   }
-
-  //   this.#currentSortType = sortType;
-  // }
 
   #renderList() {
     if (this.points.length === 0) {
@@ -95,14 +73,6 @@ export default class ListPresenter {
     this.points.forEach((point) => {
       this.#renderPoint(point, this.offers, this.destinations);
     });
-
-    // for (let i = 0; i < this.#listPoints.length; i += 1) {
-    //   this.#renderPoint(
-    //     this.#listPoints[i],
-    //     this.#listOffers,
-    //     this.#listDestinations,
-    //   );
-    // }
   }
 
   #renderContainerList() {
@@ -114,7 +84,7 @@ export default class ListPresenter {
       listEventComponent: this.#listEventComponent.element,
       offers,
       destinations,
-      onDataChange: this.#handlePointChange,
+      onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange
     });
 
@@ -131,6 +101,14 @@ export default class ListPresenter {
     this.#listPointPresenters.clear();
   }
 
+  #handleModelEvent = (updateType, data) => {
+    console.log(updateType, data);
+    // В зависимости от типа изменений решаем, что делать:
+    // - обновить часть списка (например, когда поменялось описание)
+    // - обновить список (например, когда удалили точку)
+    // - обновить все отрисованное (например, при переключении фильтра)
+  };
+
   #handleSortChange = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
@@ -142,12 +120,18 @@ export default class ListPresenter {
     this.#renderList();
   };
 
-  #handlePointChange = (updatePoint) => {
-    updateItem(this.points, updatePoint);
-    // this.#listPoints = updateItem(this.#listPoints, updatePoint);
-    // this.#sourcedListPoints = updateItem(this.#sourcedListPoints, updatePoint);
-    this.#listPointPresenters.get(updatePoint.id).init(updatePoint);
-  };
+  // #handlePointChange = (updatePoint) => {
+  //   updateItem(this.points, updatePoint);
+  //   this.#listPointPresenters.get(updatePoint.id).init(updatePoint);
+  // };
+
+  #handleViewAction(actionType, updateType, update) {
+    console.log(actionType, updateType, update);
+    // Здесь будем вызывать обновление модели.
+    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
+    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
+    // update - обновленные данные
+  }
 
   #handleModeChange = () => {
     this.#listPointPresenters.forEach((presenter) => presenter.resetView());
