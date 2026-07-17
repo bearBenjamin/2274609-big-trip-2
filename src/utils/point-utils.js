@@ -55,7 +55,7 @@ function getEventDuration(dateFrom, dateTo) {
 }
 
 function serializeDate(date) {
-  return date ? dayjs(date).format('YYYY-MM-DDTNN:mm:ss.SSS[Z]') : '';
+  return date ? dayjs(date).format('YYYY-MM-DDTHH:mm:ss.SSS[Z]') : '';
 }
 
 function getTypeOffers(offers, type) {
