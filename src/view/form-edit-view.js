@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { getCapitalaizedType, formatFormDateTime, getTypeOffers } from '../utils/point-utils.js';
+import { getCapitalaizedType, formatFormDateTime, serializeDate, getTypeOffers } from '../utils/point-utils.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -234,7 +234,7 @@ export default class FormEditEvent extends AbstractStatefulView {
     // Настройка для даты начала
     this.#datepickerFrom = flatpickr(dateStartElement, {
       ...commonConfig,
-      defaultDate: this._state.dateFrom,
+      defaultDate: dateStartElement.value,
       minDate: new Date(),
       onChange: this.#dateFromChangeHandler, // метод вызываемый при изменении даты начала
     });
@@ -242,8 +242,8 @@ export default class FormEditEvent extends AbstractStatefulView {
     // Настройка для даты окончания
     this.#datepickerTo = flatpickr(dateEndElement, {
       ...commonConfig,
-      defaultDate: this._state.dateTo,
-      minDate: this._state.dateFrom, // Запрещаю выбирать дату окончания раньше даты начала
+      defaultDate: dateEndElement.value,
+      minDate: dateStartElement.value, // Запрещаю выбирать дату окончания раньше даты начала
       onChange: this.#dateToChangeHandler,// метод вызываемы при изменении даты окончания
     });
   };
@@ -259,7 +259,7 @@ export default class FormEditEvent extends AbstractStatefulView {
 
     // Сохраняю изменение в стейт без перерисовки (ведь инпут уже обновился сам)
     this._setState({
-      dateFrom: userDate.toISOString(),
+      dateFrom: serializeDate(userDate),
     });
   };
 
@@ -271,7 +271,7 @@ export default class FormEditEvent extends AbstractStatefulView {
 
     // Сохраняю изменение в стейт без перерисовки
     this._setState({
-      dateTo: userDate.toISOString(),
+      dateTo: serializeDate(userDate),
     });
   };
 

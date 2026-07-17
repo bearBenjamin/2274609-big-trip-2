@@ -3,9 +3,8 @@ import SortView from '../view/sort-view.js';
 import ListEmpty from '../view/no-point-view.js';
 import PointPresenter from './point-presenter.js';
 import { render } from '../framework/render.js';
-// import { updateItem } from '../utils/common.js';
 import { sortTime, sortPrice, sortDay } from '../utils/point-utils.js';
-import { SortType } from '../const.js';
+import { SortType, UpdateType, UserAction } from '../const.js';
 
 export default class ListPresenter {
   #listContainer = null;
@@ -107,6 +106,15 @@ export default class ListPresenter {
     // - обновить часть списка (например, когда поменялось описание)
     // - обновить список (например, когда удалили точку)
     // - обновить все отрисованное (например, при переключении фильтра)
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#listPointPresenters.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        break;
+      case UpdateType.MAJOR:
+        break;
+    }
   };
 
   #handleSortChange = (sortType) => {
@@ -131,6 +139,18 @@ export default class ListPresenter {
     // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
     // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
     // update - обновленные данные
+    switch (actionType) {
+      case UserAction.UPDATE__POINT:
+        this.#pointsModel.updatePoint(updateType, update);
+        console.log('this.#pointsModel: ', this.#pointsModel);
+        break;
+      case UserAction.ADD__POINT:
+        this.#pointsModel.addPoint(updateType, update);
+        break;
+      case UserAction.DELETE__POINT:
+        this.#pointsModel.deletePoint(updateType, update);
+        break;
+    }
   }
 
   #handleModeChange = () => {

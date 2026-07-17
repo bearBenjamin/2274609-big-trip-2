@@ -104,7 +104,7 @@ export default class PointPresenter {
     // this.#handleDataChange({ ...this.#point, isFavorite: !this.#point.isFavorite });
     this.#handleDataChange(
       UserAction.UPDATE__POINT,
-      UpdateType.MINOR,
+      UpdateType.PATCH,
       { ...this.#point, isFavorite: !this.#point.isFavorite }
     );
   };
@@ -113,8 +113,8 @@ export default class PointPresenter {
     this.#replaceFormToPoint();
     // this.#handleDataChange(point);
     this.#handleDataChange(
-      UserAction.UPDATE__TASK,
-      UpdateType.MINOR,
+      UserAction.UPDATE__POINT,
+      UpdateType.PATCH,
       point,
     );
   };
