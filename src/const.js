@@ -11,10 +11,10 @@ const POINT__TYPE = [
 ];
 
 const FilterType = {
-  EVERITHING: 'everithing',
-  FUTURE: 'future',
-  PRESENT: 'present',
-  PAST: 'past',
+  EVERITHING: 'EVERITHING',
+  FUTURE: 'FUTURE',
+  PRESENT: 'PRESENT',
+  PAST: 'PAST',
 };
 
 

@@ -4,16 +4,19 @@ import ListEmpty from '../view/no-point-view.js';
 import PointPresenter from './point-presenter.js';
 import { render, remove } from '../framework/render.js';
 import { sortTime, sortPrice, sortDay } from '../utils/point-utils.js';
-import { SortType, UpdateType, UserAction } from '../const.js';
+import { filter } from '../utils/filter-utils.js';
+import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
 
 export default class ListPresenter {
   #listContainer = null;
   #sortComponent = null;
   #currentSortType = SortType.DAY;
+  #filterType = FilterType.EVERITHING;
 
   #pointsModel = {};
   #offerModel = [];
   #destinationsModel = [];
+  #filtersModel = [];
 
   #listEventComponent = null;
   #listEmptyComponent = null;
@@ -21,25 +24,31 @@ export default class ListPresenter {
   #listPointPresenters = new Map();
   // formEditComponent = new FormEditEvent();
 
-  constructor({ container, pointsModel, offersModel, destinationsModel }) {
+  constructor({ container, pointsModel, offersModel, destinationsModel, filterModel }) {
     this.#listContainer = container; // container - tripEventsContainer приходит из точки входа - контейнер для списка точек путешествия;
     this.#pointsModel = pointsModel;
     this.#offerModel = offersModel;
     this.#destinationsModel = destinationsModel;
+    this.#filtersModel = filterModel;
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#filtersModel.addObserver(this.#handleModelEvent);
   }
 
   get points() {
+    this.#filterType = this.#filtersModel.filter;
+    const points = this.#pointsModel.points;
+    const filteredPoints = filter[this.#filterType](points);
+
     switch (this.#currentSortType) {
       case SortType.DAY:
-        return [...this.#pointsModel.points].sort(sortDay);
+        return filteredPoints.sort(sortDay);
       case SortType.TIME:
-        return [...this.#pointsModel.points].sort(sortTime);
+        return filteredPoints.sort(sortTime);
       case SortType.PRICE:
-        return [...this.#pointsModel.points].sort(sortPrice);
+        return filteredPoints.sort(sortPrice);
     }
-    return [...this.#pointsModel.point].sort(sortDay);
+    return filteredPoints.sort(sortDay);
   }
 
   get offers() {
@@ -84,7 +93,7 @@ export default class ListPresenter {
   }
 
   #renderNoPoint() {
-    this.#listEmptyComponent = new ListEmpty();
+    this.#listEmptyComponent = new ListEmpty({ filterType: this.#filterType });
     render(this.#listEmptyComponent, this.#listContainer);
   }
 
@@ -156,7 +165,7 @@ export default class ListPresenter {
   // };
 
   #handleViewAction = (actionType, updateType, update) => {
-    console.log(actionType, updateType, update);
+    // console.log(actionType, updateType, update);
     // Здесь будем вызывать обновление модели.
     // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
     // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
@@ -164,7 +173,6 @@ export default class ListPresenter {
     switch (actionType) {
       case UserAction.UPDATE__POINT:
         this.#pointsModel.updatePoint(updateType, update);
-        console.log('this.#pointsModel: ', this.#pointsModel);
         break;
       case UserAction.ADD__POINT:
         this.#pointsModel.addPoint(updateType, update);
@@ -173,7 +181,7 @@ export default class ListPresenter {
         this.#pointsModel.deletePoint(updateType, update);
         break;
     }
-  }
+  };
 
   #handleModeChange = () => {
     this.#listPointPresenters.forEach((presenter) => presenter.resetView());
