@@ -27,6 +27,10 @@ export default class ListPresenter {
     this.#pointsModel = pointsModel;
   }
 
+  get points() {
+    return this.#pointsModel.point;
+  }
+
   init() {
     this.#listPoints = [...this.#pointsModel.points].sort(sortDay); // в моках даты формируются случайно поэтому сортирую
     this.#listOffers = [...this.#pointsModel.offers];
