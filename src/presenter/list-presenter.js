@@ -133,7 +133,7 @@ export default class ListPresenter {
   //   this.#listPointPresenters.get(updatePoint.id).init(updatePoint);
   // };
 
-  #handleViewAction(actionType, updateType, update) {
+  #handleViewAction = (actionType, updateType, update) => {
     console.log(actionType, updateType, update);
     // Здесь будем вызывать обновление модели.
     // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
