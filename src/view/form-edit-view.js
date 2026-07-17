@@ -231,6 +231,8 @@ export default class FormEditEvent extends AbstractStatefulView {
 
     this.element.querySelector('.event__type-list').addEventListener('change', this.#typeChangeHandler);
 
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#priceChangeHandler);
+
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
 
     //Календари пересоздаются при каждом обновлении DOM-элемента
@@ -329,6 +331,15 @@ export default class FormEditEvent extends AbstractStatefulView {
 
   #formBtnCloseHandler = () => {
     this.#handleFormBtnCloseClick();
+  };
+
+  #priceChangeHandler = (evt) => {
+    evt.preventDefault();
+    const newPrice = evt.target.value;
+
+    this.updateElement({
+      price: newPrice,
+    });
   };
 
   #destinationChangeHandler = (evt) => {
