@@ -1,8 +1,11 @@
 import ListPresenter from './presenter/list-presenter.js';
+import FilterPresenter from './presenter/filter-presenter.js';
 import TripInfoView from './view/trip-info-view.js';
-import FilterView from './view/filter-view.js';
+import BtnAddNewPointView from './view/add-point-btn-view.js';
 import PointsModel from './model/points-model.js';
-import { generateFilter } from './mock/filter.js';
+import OffesModel from './model/offers-model.js';
+import DestinationsModel from './model/destinations-model.js';
+import FiltersModel from './model/filter-model.js';
 import { render, RenderPosition } from './framework/render.js';
 import { offersData, destinationsData } from './mock/point.js';
 
@@ -16,18 +19,40 @@ const tripEventsContainer = main.querySelector('.trip-events');
 const tripInfoComponent = new TripInfoView();
 
 const pointsModel = new PointsModel(offersData, destinationsData);
+const offersModel = new OffesModel();
+const destinationsModel = new DestinationsModel();
+const filterModel = new FiltersModel();
 
-const points = pointsModel.points;
-const filtersData = generateFilter(points);
+const btnAddNewPointComponent = new BtnAddNewPointView({ onClick: handleBtnAddNewPointClick });
 
-const filterComponent = new FilterView(filtersData);
+render(btnAddNewPointComponent, tripInfoContainer);
 
 render(tripInfoComponent, tripInfoContainer, RenderPosition.AFTERBEGIN);
-render(filterComponent, filterContainer);
+// render(filterComponent, filterContainer);
 
-const ListComponent = new ListPresenter({
+const listPresenter = new ListPresenter({
   container: tripEventsContainer,
   pointsModel,
+  offersModel,
+  destinationsModel,
+  filterModel,
+  onNewPointDestroy: handleNewFormClose,
 });
 
-ListComponent.init();
+const filterPresenter = new FilterPresenter({
+  filterContainer,
+  filterModel,
+  pointsModel
+});
+
+function handleBtnAddNewPointClick() {
+  listPresenter.createPoint();
+  btnAddNewPointComponent.element.disabled = true;
+}
+
+function handleNewFormClose() {
+  btnAddNewPointComponent.element.disabled = false;
+}
+
+listPresenter.init();
+filterPresenter.init();

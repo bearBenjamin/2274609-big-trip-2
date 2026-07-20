@@ -11,10 +11,10 @@ const POINT__TYPE = [
 ];
 
 const FilterType = {
-  EVERITHING: 'everithing',
-  FUTURE: 'future',
-  PRESENT: 'present',
-  PAST: 'past',
+  EVERITHING: 'EVERITHING',
+  FUTURE: 'FUTURE',
+  PRESENT: 'PRESENT',
+  PAST: 'PAST',
 };
 
 
@@ -31,4 +31,27 @@ const SortType = {
   PRICE: 'price'
 };
 
-export { POINT__TYPE, FilterType, MessageNoEvent, SortType };
+const UserAction = {
+  UPDATE__POINT: 'UPDATE__POINT',
+  ADD__POINT: 'ADD__POINT',
+  DELETE__POINT: 'DELETE__POINT',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
+const EMPTY__POINT = {
+  type: 'flight',
+  destination: {},
+  dateFrom: null,
+  dateTo: null,
+  price: 0,
+  offers: [],
+  isFavorite: false,
+};
+
+
+export { POINT__TYPE, FilterType, MessageNoEvent, SortType, UserAction, UpdateType, EMPTY__POINT };

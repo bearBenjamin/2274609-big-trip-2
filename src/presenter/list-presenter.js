@@ -2,83 +2,115 @@ import ListTripEvents from '../view/list-trip-view.js';
 import SortView from '../view/sort-view.js';
 import ListEmpty from '../view/no-point-view.js';
 import PointPresenter from './point-presenter.js';
-import { render } from '../framework/render.js';
-import { updateItem } from '../utils/common.js';
+import AddNewPointPresenter from './add-new-point-presenter.js';
+import { render, remove } from '../framework/render.js';
 import { sortTime, sortPrice, sortDay } from '../utils/point-utils.js';
-import { SortType } from '../const.js';
+import { filter } from '../utils/filter-utils.js';
+import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
 
 export default class ListPresenter {
   #listContainer = null;
   #sortComponent = null;
-  #listEventComponent = new ListTripEvents();
   #currentSortType = SortType.DAY;
+  #filterType = FilterType.EVERITHING;
+  #newPointPresenter = null;
 
   #pointsModel = {};
-  #listPoints = [];
-  #sourcedListPoints = [];
-  #listOffers = [];
-  #listDestinations = [];
+  #offerModel = [];
+  #destinationsModel = [];
+  #filtersModel = [];
+
+  #listEventComponent = new ListTripEvents();
+  #listEmptyComponent = null;
 
   #listPointPresenters = new Map();
   // formEditComponent = new FormEditEvent();
 
-  constructor({ container, pointsModel }) {
+  constructor({ container, pointsModel, offersModel, destinationsModel, filterModel, onNewPointDestroy }) {
     this.#listContainer = container; // container - tripEventsContainer приходит из точки входа - контейнер для списка точек путешествия;
     this.#pointsModel = pointsModel;
+    this.#offerModel = offersModel;
+    this.#destinationsModel = destinationsModel;
+    this.#filtersModel = filterModel;
+
+    this.#newPointPresenter = new AddNewPointPresenter({
+      container: this.#listEventComponent.element,
+      onDataChange: this.#handleViewAction,
+      onDestroy: onNewPointDestroy,
+      offers: this.#offerModel.offers,
+      destinations: this.#destinationsModel.destinations,
+    });
+
+    this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#filtersModel.addObserver(this.#handleModelEvent);
+  }
+
+  get points() {
+    this.#filterType = this.#filtersModel.filter;
+    const points = this.#pointsModel.points;
+    const filteredPoints = filter[this.#filterType](points);
+
+    switch (this.#currentSortType) {
+      case SortType.DAY:
+        return filteredPoints.sort(sortDay);
+      case SortType.TIME:
+        return filteredPoints.sort(sortTime);
+      case SortType.PRICE:
+        return filteredPoints.sort(sortPrice);
+    }
+    return filteredPoints.sort(sortDay);
+  }
+
+  get offers() {
+    return this.#offerModel.offers;
+  }
+
+  get destinations() {
+    return this.#destinationsModel.destinations;
   }
 
   init() {
-    this.#listPoints = [...this.#pointsModel.points].sort(sortDay); // в моках даты формируются случайно поэтому сортирую
-    this.#listOffers = [...this.#pointsModel.offers];
-    this.#listDestinations = [...this.#pointsModel.destinations];
-    this.#sourcedListPoints = [...this.#pointsModel.points].sort(sortDay); // в моках даты формируются случайно поэтому сортирую
-
-    this.#renderSort();
     this.#renderList();
   }
 
   #renderSort() {
     this.#sortComponent = new SortView({
+      currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortChange,
     });
     render(this.#sortComponent, this.#listContainer);
   }
 
-  #sortPoints(sortType) {
-    switch (sortType) {
-      case SortType.TIME:
-        this.#listPoints.sort(sortTime);
-        break;
-      case SortType.PRICE:
-        this.#listPoints.sort(sortPrice);
-        break;
-      default:
-        this.#listPoints = [...this.#sourcedListPoints]; // в моках даты как бог на душу послал поэтому и здесь соритрую
-    }
-
-    this.#currentSortType = sortType;
+  createPoint() {
+    this.#currentSortType = SortType.DAY;
+    this.#filtersModel.setFilter(UpdateType.MAJOR, FilterType.EVERITHING);
+    this.#newPointPresenter.init();
   }
 
   #renderList() {
-    if (this.#listPoints.length === 0) {
-      render(new ListEmpty(), this.#listContainer);
+    if (this.points.length === 0) {
+      // render(new ListEmpty(), this.#listContainer);
+      this.#renderNoPoint();
       return;
     }
 
+    this.#renderSort();
     //отрисоваваю контейнер списка - <ul></ul>
     this.#renderContainerList();
 
-    for (let i = 0; i < this.#listPoints.length; i += 1) {
-      this.#renderPoint(
-        this.#listPoints[i],
-        this.#listOffers,
-        this.#listDestinations,
-      );
-    }
+    this.points.forEach((point) => {
+      this.#renderPoint(point, this.offers, this.destinations);
+    });
   }
 
   #renderContainerList() {
+    // this.#listEventComponent = new ListTripEvents();
     render(this.#listEventComponent, this.#listContainer);
+  }
+
+  #renderNoPoint() {
+    this.#listEmptyComponent = new ListEmpty({ filterType: this.#filterType });
+    render(this.#listEmptyComponent, this.#listContainer);
   }
 
   #renderPoint(point, offers, destinations) {
@@ -86,7 +118,7 @@ export default class ListPresenter {
       listEventComponent: this.#listEventComponent.element,
       offers,
       destinations,
-      onDataChange: this.#handlePointChange,
+      onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange
     });
 
@@ -95,31 +127,77 @@ export default class ListPresenter {
     this.#listPointPresenters.set(point.id, pointPresenter);
   }
 
-  #clearListPoint() {
+  #clearListPoint({ resetSortType = false } = {}) {
+    this.#newPointPresenter.destroy();
+
     this.#listPointPresenters.forEach((presenter) => {
       presenter.destroy();
     });
 
     this.#listPointPresenters.clear();
+
+    remove(this.#sortComponent);
+    // remove(this.#listEventComponent);
+    remove(this.#listEmptyComponent);
+
+    if (resetSortType) {
+      this.#currentSortType = SortType.DAY;
+    }
   }
+
+  #handleModelEvent = (updateType, data) => {
+    // console.log(updateType, data);
+    // В зависимости от типа изменений решаем, что делать:
+    // - обновить часть списка (например, когда поменялось описание)
+    // - обновить список (например, когда удалили точку)
+    // - обновить все отрисованное (например, при переключении фильтра)
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#listPointPresenters.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        this.#clearListPoint();
+        this.#renderList();
+        break;
+      case UpdateType.MAJOR:
+        this.#clearListPoint({ resetSortType: true });
+        this.#renderList();
+        break;
+    }
+  };
 
   #handleSortChange = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
     }
 
-    this.#sortPoints(sortType);
+    // this.#sortPoints(sortType);
+    this.#currentSortType = sortType;
     this.#clearListPoint();
     this.#renderList();
   };
 
-  #handlePointChange = (updatePoint) => {
-    this.#listPoints = updateItem(this.#listPoints, updatePoint);
-    this.#sourcedListPoints = updateItem(this.#sourcedListPoints, updatePoint);
-    this.#listPointPresenters.get(updatePoint.id).init(updatePoint);
+  #handleViewAction = (actionType, updateType, update) => {
+    // console.log(actionType, updateType, update);
+    // Здесь будем вызывать обновление модели.
+    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
+    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
+    // update - обновленные данные
+    switch (actionType) {
+      case UserAction.UPDATE__POINT:
+        this.#pointsModel.updatePoint(updateType, update);
+        break;
+      case UserAction.ADD__POINT:
+        this.#pointsModel.addPoint(updateType, update);
+        break;
+      case UserAction.DELETE__POINT:
+        this.#pointsModel.deletePoint(updateType, update);
+        break;
+    }
   };
 
   #handleModeChange = () => {
+    this.#newPointPresenter.destroy();
     this.#listPointPresenters.forEach((presenter) => presenter.resetView());
   };
 }

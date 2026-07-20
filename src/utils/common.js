@@ -6,8 +6,8 @@ function getRandomInteger(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function updateItem(items, update) {
-  return items.map((item) => item.id === update.id ? update : item);
+function isEscapeKey(evt) {
+  return evt.key === 'Escape' || evt.key === 'Esc';
 }
 
-export { getRandomArrayElement, getRandomInteger, updateItem };
+export { getRandomArrayElement, getRandomInteger, isEscapeKey };
