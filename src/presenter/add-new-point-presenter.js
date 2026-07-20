@@ -1,5 +1,6 @@
 import { render, remove, RenderPosition } from '../framework/render';
 import { UpdateType, UserAction, EMPTY__POINT } from '../const';
+import { isEscapeKey } from '../utils/common';
 import FormEditEvent from '../view/form-edit-view';
 import { nanoid } from 'nanoid';
 
@@ -68,7 +69,7 @@ export default class AddNewPointPresenter {
   };
 
   #escKeyDownHandler = (evt) => {
-    if (evt.key === 'Escape' || evt.key === 'Esc') {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
       this.destroy();
     }

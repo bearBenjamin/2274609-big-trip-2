@@ -1,5 +1,6 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { getCapitalaizedType, formatFormDateTime, serializeDate, getTypeOffers } from '../utils/point-utils.js';
+import he from 'he';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -93,9 +94,9 @@ const createDestinationListTemplate = (destinationsData) => {
 };
 
 const createTemplate = (point, offersData, destinationsData) => {
-  const { id, type, dateFrom, dateTo, price, offers, destination } = point;
+  const { id, type, dateFrom, dateTo, price, offers, destination, isSubmitDisabled } = point;
 
-  const { name = '', description = '', pictures = [] } = destination;
+  const { name = '', description = '', pictures = [] } = destination || {};
 
   const capitalizedType = getCapitalaizedType(type);
 
@@ -133,7 +134,7 @@ const createTemplate = (point, offersData, destinationsData) => {
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${capitalizedType}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${nameCity}" list="destination-list-1" autocomplete="off">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(nameCity)}" list="destination-list-1" autocomplete="off">
                      ${templateListCity}
                   </div>
 
@@ -150,10 +151,10 @@ const createTemplate = (point, offersData, destinationsData) => {
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${price}">
+                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${he.encode(String(price))}">
                   </div>
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+                  <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDisabled ? 'disabled' : ''}>Save</button>
                   <button class="event__reset-btn" type="reset">${resetBtnText}</button>
                    ${isNewPoint ? '' : `<button class="event__rollup-btn" type="button">
                     <span class="visually-hidden">Open event</span>
@@ -179,7 +180,15 @@ export default class FormEditEvent extends AbstractStatefulView {
   #datepickerFrom = null;
   #datepickerTo = null;
 
-  constructor({ point, offers, destinations, onFormSubmit, onPointDeleteClick, onFormBtnCloseClick, onPointCancelClick }) {
+  constructor({
+    point,
+    offers,
+    destinations,
+    onFormSubmit,
+    onPointDeleteClick,
+    onFormBtnCloseClick,
+    onPointCancelClick
+  }) {
     super();
     this._setState(FormEditEvent.parsePointToState(point));
     this.#offers = offers;
@@ -200,8 +209,6 @@ export default class FormEditEvent extends AbstractStatefulView {
   }
 
   removeElement() {
-    super.removeElement();
-
     if (this.#datepickerFrom) {
       this.#datepickerFrom.destroy();
       this.#datepickerFrom = null;
@@ -211,6 +218,8 @@ export default class FormEditEvent extends AbstractStatefulView {
       this.#datepickerTo.destroy();
       this.#datepickerTo = null;
     }
+
+    super.removeElement();
   }
 
   _restoreHandlers = () => {
@@ -224,10 +233,6 @@ export default class FormEditEvent extends AbstractStatefulView {
     }
 
     this.element.querySelector('.event--edit').addEventListener('submit', this.#formSubmitHandler);
-
-    // this.element.querySelector('.event__reset-btn').addEventListener('click', this.#btnDeleteHandler);
-
-    // this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formBtnCloseHandler);
 
     this.element.querySelector('.event__type-list').addEventListener('change', this.#typeChangeHandler);
 
@@ -257,43 +262,66 @@ export default class FormEditEvent extends AbstractStatefulView {
       ...commonConfig,
       defaultDate: dateStartElement.value,
       minDate: new Date(),
-      onChange: this.#dateFromChangeHandler, // метод вызываемый при изменении даты начала
+      maxDate: dateEndElement.value || null,
+      onChange: this.#dateFromChangeHandler,
     });
 
     // Настройка для даты окончания
     this.#datepickerTo = flatpickr(dateEndElement, {
       ...commonConfig,
       defaultDate: dateEndElement.value,
-      minDate: dateStartElement.value, // Запрещаю выбирать дату окончания раньше даты начала
-      onChange: this.#dateToChangeHandler,// метод вызываемы при изменении даты окончания
+      minDate: dateStartElement.value || new Date(),
+      onChange: this.#dateToChangeHandler,
     });
   };
 
   // Обработчик изменения даты начала
   #dateFromChangeHandler = ([userDate]) => {
     if (!userDate) {
-      return;
+      this.#datepickerTo.set('minDate', new Date());
+    } else {
+      this.#datepickerTo.set('minDate', userDate);
     }
 
     // Обновляю минимальную дату для поля окончания события путешествия
-    this.#datepickerTo.set('minDate', userDate);
+    // this.#datepickerTo.set('minDate', userDate);
 
-    // Сохраняю изменение в стейт без перерисовки (ведь инпут уже обновился сам)
+    const actualDateTo = this.#datepickerTo.selectedDates[0];
+    const serializeDateTo = actualDateTo ? serializeDate(actualDateTo) : null;
+
+    const isFormInvalid = !this._state.destination || !this._state.destination.name || !userDate || !serializeDateTo || Number(this._state.price) <= 0;
+
     this._setState({
-      dateFrom: serializeDate(userDate),
+      dateFrom: userDate ? serializeDate(userDate) : null,
+      dateTo: serializeDateTo,
+      isSubmitDisabled: isFormInvalid,
     });
+
+    this.element.querySelector('.event__save-btn').disabled = isFormInvalid;
   };
 
   // Обработчик изменения даты окончания
   #dateToChangeHandler = ([userDate]) => {
     if (!userDate) {
-      return;
+      this.#datepickerFrom.set('maxDate', null);
+    } else {
+      this.#datepickerFrom.set('maxDate', userDate);
     }
 
-    // Сохраняю изменение в стейт без перерисовки
+    // this.#datepickerFrom.set('maxDate', userDate);
+
+    const actualDateFrom = this.#datepickerFrom.selectedDates[0];
+    const serializeDateFrom = actualDateFrom ? serializeDate(actualDateFrom) : null;
+
+    const isFormInvalid = !this._state.destination || !this._state.destination.name || !serializeDateFrom || !userDate || Number(this._state.price) <= 0;
+
     this._setState({
-      dateTo: serializeDate(userDate),
+      dateFrom: serializeDateFrom,
+      dateTo: userDate ? serializeDate(userDate) : null,
+      isSubmitDisabled: isFormInvalid,
     });
+
+    this.element.querySelector('.event__save-btn').disabled = isFormInvalid;
   };
 
   #typeChangeHandler = (evt) => {
@@ -320,6 +348,10 @@ export default class FormEditEvent extends AbstractStatefulView {
       offers: selectedOffers
     });
 
+    if (this._state.isSubmitDisabled) {
+      return;
+    }
+
     const updatePoint = FormEditEvent.parseStateToPoint(this._state);
     this.#handleFormSubmitClick(updatePoint);
   };
@@ -335,38 +367,56 @@ export default class FormEditEvent extends AbstractStatefulView {
 
   #priceChangeHandler = (evt) => {
     evt.preventDefault();
-    const newPrice = evt.target.value;
+    const userPrice = evt.target.value.trim();
+    const isOnlyNumbers = /^\d+$/.test(userPrice);
 
-    this.updateElement({
-      price: newPrice,
+    const isFormInvalid = !isOnlyNumbers || Number(userPrice) <= 0 || !this._state.destination || !this._state.destination.name || !this._state.dateFrom || !this._state.dateTo;
+
+
+    this._setState({
+      price: isOnlyNumbers ? Number(userPrice) : 0,
+      isSubmitDisabled: isFormInvalid,
     });
+
+    this.element.querySelector('.event__save-btn').disabled = isFormInvalid;
   };
 
   #destinationChangeHandler = (evt) => {
     evt.preventDefault();
-    const userDestinationName = evt.target.value;
+    const userDestinationName = evt.target.value.trim();
 
     const currentDestination = this.#destinations.find((destination) => destination.name === userDestinationName);
 
     if (!currentDestination) {
-      return;
+      evt.target.value = '';
+      this.updateElement({
+        destination: null,
+        isSubmitDisabled: true,
+      });
+    } else {
+      const isFormInvalid = !this._state.dateFrom || !this._state.dateTo || Number(this._state.price) <= 0;
+      this.updateElement({
+        destination: currentDestination,
+        isSubmitDisabled: isFormInvalid,
+      });
     }
-
-    this._setState({
-      destination: currentDestination,
-    });
-
-    this.updateElement({
-      destination: currentDestination,
-    });
   };
 
   static parsePointToState(point) {
-    return { ...point };
+    return {
+      ...point,
+      isSubmitDisabled:
+        !point.destination ||
+        !point.destination.name ||
+        !point.dateFrom ||
+        !point.dateTo ||
+        Number(point.price) <= 0,
+    };
   }
 
   static parseStateToPoint(state) {
     const point = { ...state };
+    delete point.isSubmitDisabled;
     return point;
   }
 }

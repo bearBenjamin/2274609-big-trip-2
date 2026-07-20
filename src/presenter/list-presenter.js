@@ -177,11 +177,6 @@ export default class ListPresenter {
     this.#renderList();
   };
 
-  // #handlePointChange = (updatePoint) => {
-  //   updateItem(this.points, updatePoint);
-  //   this.#listPointPresenters.get(updatePoint.id).init(updatePoint);
-  // };
-
   #handleViewAction = (actionType, updateType, update) => {
     // console.log(actionType, updateType, update);
     // Здесь будем вызывать обновление модели.
