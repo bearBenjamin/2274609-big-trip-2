@@ -3,13 +3,13 @@ import FilterPresenter from './presenter/filter-presenter.js';
 import TripInfoView from './view/trip-info-view.js';
 import BtnAddNewPointView from './view/add-point-btn-view.js';
 import PointsModel from './model/points-model.js';
-import OffesModel from './model/offers-model.js';
+import OffersModel from './model/offers-model.js';
 import DestinationsModel from './model/destinations-model.js';
 import FiltersModel from './model/filter-model.js';
 import { render, RenderPosition } from './framework/render.js';
-// import { offersData, destinationsData } from './mock/point.js';
 import PointsApiService from './points-api-service.js';
 import DestinationsApiService from './destinations-api-service.js';
+import OffersApiService from './offers-api-service.js';
 
 const AUTORIZATION = 'Basic Hew76qE2hdfW23sD';
 const END__POINT = 'https://22.objects.htmlacademy.pro/big-trip';
@@ -26,7 +26,9 @@ const tripInfoComponent = new TripInfoView();
 const pointsModel = new PointsModel({
   PointsTripServer: new PointsApiService(END__POINT, AUTORIZATION),
 });
-const offersModel = new OffesModel();
+const offersModel = new OffersModel({
+  offersTripServer: new OffersApiService(END__POINT, AUTORIZATION)
+});
 const destinationsModel = new DestinationsModel({
   destinationsTripServer: new DestinationsApiService(END__POINT, AUTORIZATION),
 });
@@ -70,3 +72,4 @@ pointsModel.init()
     render(btnAddNewPointComponent, tripInfoContainer); // так себе решение наверное
   });
 destinationsModel.init();
+offersModel.init();

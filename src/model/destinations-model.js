@@ -1,5 +1,4 @@
 import Observable from '../framework/observable';
-// import { destinationsData } from '../mock/point';
 
 export default class DestinationsModel extends Observable {
   #destinationsTripServer = null;
@@ -16,7 +15,7 @@ export default class DestinationsModel extends Observable {
 
   async init() {
     try {
-      this.#destinations = await this.#destinationsTripServer.destinations
+      this.#destinations = await this.#destinationsTripServer.destinations;
     } catch (err) {
       this.#destinations = [];
     }

@@ -40,11 +40,13 @@ export default class ListPresenter {
       container: this.#listEventComponent.element,
       onDataChange: this.#handleViewAction,
       onDestroy: onNewPointDestroy,
-      offers: this.#offerModel.offers,
-      destinations: this.#destinationsModel.destinations,
+      getOffers: () => this.offers,
+      getDestinations: () => this.destinations,
     });
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
+    this.#offerModel.addObserver(this.#handleModelEvent);
+    this.#destinationsModel.addObserver(this.#handleModelEvent);
     this.#filtersModel.addObserver(this.#handleModelEvent);
   }
 
@@ -92,6 +94,11 @@ export default class ListPresenter {
 
   #renderList() {
     if (this.#isLoading) {
+      this.#renderLoading();
+      return;
+    }
+
+    if (this.offers.length === 0 || this.destinations.length === 0) {
       this.#renderLoading();
       return;
     }

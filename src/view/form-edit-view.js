@@ -59,11 +59,11 @@ const createDescriptionTemplate = (description, pictures) => {
 
   const templatePhotos = createPhotosTemplate(pictures);
 
-  const templateSectionDescription = templatePhotos ? `<section class="event__section  event__section--destination">
+  const templateSectionDescription = `<section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
                     ${templateDescription}
                     ${templatePhotos}
-                  </section>` : '';
+                  </section>`;
   return templateSectionDescription;
 };
 
@@ -96,7 +96,9 @@ const createDestinationListTemplate = (destinationsData) => {
 const createTemplate = (point, offersData, destinationsData) => {
   const { id, type, dateFrom, dateTo, price, offers, destination, isSubmitDisabled } = point;
 
-  const { name = '', description = '', pictures = [] } = destination || {};
+  const currentDestination = destinationsData.find((item) => item.id === destination);
+
+  const { name = '', description = '', pictures = [] } = currentDestination || {};
 
   const capitalizedType = getCapitalaizedType(type);
 
@@ -240,6 +242,11 @@ export default class FormEditEvent extends AbstractStatefulView {
 
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
 
+    const offersContainer = this.element.querySelector('.event__available-offers');
+    if (offersContainer) {
+      offersContainer.addEventListener('change', this.#offerChangeHandler);
+    }
+
     //Календари пересоздаются при каждом обновлении DOM-элемента
     this.#setDatepickers();
   };
@@ -289,7 +296,7 @@ export default class FormEditEvent extends AbstractStatefulView {
     const actualDateTo = this.#datepickerTo.selectedDates[0];
     const serializeDateTo = actualDateTo ? serializeDate(actualDateTo) : null;
 
-    const isFormInvalid = !this._state.destination || !this._state.destination.name || !userDate || !serializeDateTo || Number(this._state.price) <= 0;
+    const isFormInvalid = !this._state.destination || /*!this._state.destination.name ||*/ !userDate || !serializeDateTo || Number(this._state.price) <= 0;
 
     this._setState({
       dateFrom: userDate ? serializeDate(userDate) : null,
@@ -313,7 +320,7 @@ export default class FormEditEvent extends AbstractStatefulView {
     const actualDateFrom = this.#datepickerFrom.selectedDates[0];
     const serializeDateFrom = actualDateFrom ? serializeDate(actualDateFrom) : null;
 
-    const isFormInvalid = !this._state.destination || !this._state.destination.name || !serializeDateFrom || !userDate || Number(this._state.price) <= 0;
+    const isFormInvalid = !this._state.destination || /*!this._state.destination.name ||*/ !serializeDateFrom || !userDate || Number(this._state.price) <= 0;
 
     this._setState({
       dateFrom: serializeDateFrom,
@@ -321,7 +328,7 @@ export default class FormEditEvent extends AbstractStatefulView {
       isSubmitDisabled: isFormInvalid,
     });
 
-    this.element.querySelector('.event__save-btn').disabled = isFormInvalid;
+    // this.element.querySelector('.event__save-btn').disabled = isFormInvalid;
   };
 
   #typeChangeHandler = (evt) => {
@@ -338,15 +345,32 @@ export default class FormEditEvent extends AbstractStatefulView {
     });
   };
 
-  #formSubmitHandler = (evt) => {
+  #offerChangeHandler = (evt) => {
+    if (!evt.target.classList.contains('event__offer-checkbox')) {
+      return;
+    }
+
     evt.preventDefault();
-    // Собираю актуальный массив выбранных офферов
-    const checkedBoxes = this.element.querySelectorAll('.event__offer-checkbox:checked');
-    const selectedOffers = Array.from(checkedBoxes).map((box) => Number(box.dataset.offerId));
+
+    const clickedOfferId = evt.target.dataset.offerId;
+
+    let selectedOffers = [...this._state.offers];
+
+    if (evt.target.checked) {
+      if (!selectedOffers.includes(clickedOfferId)) {
+        selectedOffers.push(clickedOfferId);
+      }
+    } else {
+      selectedOffers = selectedOffers.filter((id) => id !== clickedOfferId);
+    }
 
     this._setState({
       offers: selectedOffers
     });
+  };
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
 
     if (this._state.isSubmitDisabled) {
       return;
@@ -370,7 +394,7 @@ export default class FormEditEvent extends AbstractStatefulView {
     const userPrice = evt.target.value.trim();
     const isOnlyNumbers = /^\d+$/.test(userPrice);
 
-    const isFormInvalid = !isOnlyNumbers || Number(userPrice) <= 0 || !this._state.destination || !this._state.destination.name || !this._state.dateFrom || !this._state.dateTo;
+    const isFormInvalid = !isOnlyNumbers || Number(userPrice) <= 0 || !this._state.destination || /*!this._state.destination.name ||*/ !this._state.dateFrom || !this._state.dateTo;
 
 
     this._setState({
@@ -396,7 +420,7 @@ export default class FormEditEvent extends AbstractStatefulView {
     } else {
       const isFormInvalid = !this._state.dateFrom || !this._state.dateTo || Number(this._state.price) <= 0;
       this.updateElement({
-        destination: currentDestination,
+        destination: currentDestination.id,
         isSubmitDisabled: isFormInvalid,
       });
     }
@@ -407,7 +431,7 @@ export default class FormEditEvent extends AbstractStatefulView {
       ...point,
       isSubmitDisabled:
         !point.destination ||
-        !point.destination.name ||
+        /*!point.destination.name ||*/
         !point.dateFrom ||
         !point.dateTo ||
         Number(point.price) <= 0,

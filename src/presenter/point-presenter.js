@@ -38,6 +38,7 @@ export default class PointPresenter {
     this.#pointComponent = new PointTripEvent({
       point: this.#point,
       offers: this.#offers,
+      destinations: this.#destinations,
       onFormEditBtnClick: () => {
         this.#replacePointToForm();
       },
