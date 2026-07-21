@@ -5,7 +5,7 @@ const METHOD = {
   PUT: 'PUT',
 };
 
-export default class PointsApiServer {
+export default class PointsApiServer extends ApiService {
   get points() {
     return this._load({
       url: 'points',

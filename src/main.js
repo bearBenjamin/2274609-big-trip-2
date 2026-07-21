@@ -7,7 +7,11 @@ import OffesModel from './model/offers-model.js';
 import DestinationsModel from './model/destinations-model.js';
 import FiltersModel from './model/filter-model.js';
 import { render, RenderPosition } from './framework/render.js';
-import { offersData, destinationsData } from './mock/point.js';
+// import { offersData, destinationsData } from './mock/point.js';
+import PointsApiService from './points-api-service.js';
+
+const AUTORIZATION = 'Basic Hew76qE2hdfW23sD';
+const END__POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 
 const header = document.querySelector('.page-header');
 const tripInfoContainer = header.querySelector('.trip-main');
@@ -18,7 +22,9 @@ const tripEventsContainer = main.querySelector('.trip-events');
 
 const tripInfoComponent = new TripInfoView();
 
-const pointsModel = new PointsModel(offersData, destinationsData);
+const pointsModel = new PointsModel({
+  PointsApiServer: new PointsApiService(END__POINT, AUTORIZATION),
+});
 const offersModel = new OffesModel();
 const destinationsModel = new DestinationsModel();
 const filterModel = new FiltersModel();

@@ -4,7 +4,18 @@ import { generatePoint } from '../mock/point';
 const POINT__COUNT = 4;
 
 export default class PointsModel extends Observable {
+  #pointApiServer = null;
   #points = Array.from({ length: POINT__COUNT }, generatePoint);
+
+  constructor({ PointsApiServer }) {
+    super();
+    this.#pointApiServer = PointsApiServer;
+    console.log(this.#pointApiServer);
+
+    this.#pointApiServer.points.then((points) => {
+      console.log('points: ', points);
+    });
+  }
 
   get points() {
     return this.#points;
