@@ -12,11 +12,10 @@ export default class PointsModel extends Observable {
   constructor({ PointsTripServer }) {
     super();
     this.#pointsTripServer = PointsTripServer;
-    console.log(this.#pointsTripServer);
 
-    this.#pointsTripServer.points.then((points) => {
-      console.log('points: ', points.map(this.#adaptToClient));
-    });
+    // this.#pointsTripServer.points.then((points) => {
+    //   console.log('points: ', points.map(this.#adaptToClient));
+    // });
   }
 
   get points() {
@@ -25,7 +24,7 @@ export default class PointsModel extends Observable {
 
   async init() {
     try {
-      const points = await this.#pointsTripServer.poinst;
+      const points = await this.#pointsTripServer.points;
       this.#points = points.map(this.#adaptToClient);
     } catch (err) {
       this.#points = [];

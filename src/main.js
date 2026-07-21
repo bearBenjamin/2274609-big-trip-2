@@ -9,6 +9,7 @@ import FiltersModel from './model/filter-model.js';
 import { render, RenderPosition } from './framework/render.js';
 // import { offersData, destinationsData } from './mock/point.js';
 import PointsApiService from './points-api-service.js';
+import DestinationsApiService from './destinations-api-service.js';
 
 const AUTORIZATION = 'Basic Hew76qE2hdfW23sD';
 const END__POINT = 'https://22.objects.htmlacademy.pro/big-trip';
@@ -26,12 +27,14 @@ const pointsModel = new PointsModel({
   PointsTripServer: new PointsApiService(END__POINT, AUTORIZATION),
 });
 const offersModel = new OffesModel();
-const destinationsModel = new DestinationsModel();
+const destinationsModel = new DestinationsModel({
+  destinationsTripServer: new DestinationsApiService(END__POINT, AUTORIZATION),
+});
 const filterModel = new FiltersModel();
 
 const btnAddNewPointComponent = new BtnAddNewPointView({ onClick: handleBtnAddNewPointClick });
 
-render(btnAddNewPointComponent, tripInfoContainer);
+// render(btnAddNewPointComponent, tripInfoContainer); возможно это было более правильно -> перенес отрисовку кнопки в init pointModel
 
 render(tripInfoComponent, tripInfoContainer, RenderPosition.AFTERBEGIN);
 // render(filterComponent, filterContainer);
@@ -62,4 +65,8 @@ function handleNewFormClose() {
 
 listPresenter.init();
 filterPresenter.init();
-pointsModel.init();
+pointsModel.init()
+  .finally(() => {
+    render(btnAddNewPointComponent, tripInfoContainer); // так себе решение наверное
+  });
+destinationsModel.init();
