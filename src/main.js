@@ -23,7 +23,7 @@ const tripEventsContainer = main.querySelector('.trip-events');
 const tripInfoComponent = new TripInfoView();
 
 const pointsModel = new PointsModel({
-  PointsApiServer: new PointsApiService(END__POINT, AUTORIZATION),
+  PointsTripServer: new PointsApiService(END__POINT, AUTORIZATION),
 });
 const offersModel = new OffesModel();
 const destinationsModel = new DestinationsModel();
@@ -62,3 +62,4 @@ function handleNewFormClose() {
 
 listPresenter.init();
 filterPresenter.init();
+pointsModel.init();

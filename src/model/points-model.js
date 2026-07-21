@@ -1,18 +1,20 @@
 import Observable from '../framework/observable';
-import { generatePoint } from '../mock/point';
+import { UpdateType } from '../const';
+// import { generatePoint } from '../mock/point';
 
-const POINT__COUNT = 4;
+// const POINT__COUNT = 4;
 
 export default class PointsModel extends Observable {
-  #pointApiServer = null;
-  #points = Array.from({ length: POINT__COUNT }, generatePoint);
+  #pointsTripServer = null;
+  #points = [];
+  // #points = Array.from({ length: POINT__COUNT }, generatePoint);
 
-  constructor({ PointsApiServer }) {
+  constructor({ PointsTripServer }) {
     super();
-    this.#pointApiServer = PointsApiServer;
-    console.log(this.#pointApiServer);
+    this.#pointsTripServer = PointsTripServer;
+    console.log(this.#pointsTripServer);
 
-    this.#pointApiServer.points.then((points) => {
+    this.#pointsTripServer.points.then((points) => {
       console.log('points: ', points.map(this.#adaptToClient));
     });
   }
@@ -21,7 +23,21 @@ export default class PointsModel extends Observable {
     return this.#points;
   }
 
-  updatePoint(UpdateType, update) {
+  async init() {
+    try {
+      const points = await this.#pointsTripServer.poinst;
+      this.#points = points.map(this.#adaptToClient);
+    } catch (err) {
+      this.#points = [];
+      /* !!!
+      вот здесь надо будет обрабатывать ошибку сервера и отрисовку ошибки сервера
+      !!! */
+    }
+
+    this._notify(UpdateType.INIT);
+  }
+
+  updatePoint(updateType, update) {
     const index = this.#points.findIndex((point) => point.id === update.id);
 
     if (index === -1) {
@@ -34,7 +50,7 @@ export default class PointsModel extends Observable {
       ...this.#points.slice(index + 1),
     ];
 
-    this._notify(UpdateType, update);
+    this._notify(updateType, update);
   }
 
   addPoint(updateType, update) {
