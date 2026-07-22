@@ -1,21 +1,13 @@
 import Observable from '../framework/observable';
 import { UpdateType } from '../const';
-// import { generatePoint } from '../mock/point';
-
-// const POINT__COUNT = 4;
 
 export default class PointsModel extends Observable {
   #pointsTripServer = null;
   #points = [];
-  // #points = Array.from({ length: POINT__COUNT }, generatePoint);
 
   constructor({ PointsTripServer }) {
     super();
     this.#pointsTripServer = PointsTripServer;
-
-    // this.#pointsTripServer.points.then((points) => {
-    //   console.log('points: ', points.map(this.#adaptToClient));
-    // });
   }
 
   get points() {

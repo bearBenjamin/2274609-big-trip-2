@@ -50,6 +50,3 @@ const filterPresenter = new FilterPresenter({
 
 listPresenter.init();
 filterPresenter.init();
-// pointsModel.init();
-// destinationsModel.init();
-// offersModel.init();

@@ -21,11 +21,6 @@ const createOffersTemplate = (type, offers, offersData) => {
     offers.includes(offer.id), // здесь offers - это предложения из point, которую сейчас отрисовываем
   );
 
-  // if (chosenOffers.length === 0) {
-  //   listOffers = '';
-  //   return listOffers;
-  // }
-
   listOffers = chosenOffers.map((offer) => `
                   <li class="event__offer">
                     <span class="event__offer-title">${offer.title}</span>
@@ -33,14 +28,12 @@ const createOffersTemplate = (type, offers, offersData) => {
                     <span class="event__offer-price">${offer.price}</span>
                   </li>`);
 
-
   return `<h4 class="visually-hidden">Offers:</h4>
                 <ul class="event__selected-offers">${listOffers.join('')}</ul>`;
 };
 
 const createTemplate = (pointData, offersData, destinationsData) => {
   const { type, dateFrom, dateTo, price, offers, destination, isFavorite } = pointData;
-  // const { name } = destination;
   const currentItem = destinationsData.find((item) => destination === item.id);
   const currentNameCity = currentItem.name;
 

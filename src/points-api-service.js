@@ -34,7 +34,6 @@ export default class PointsApiServer extends ApiService {
       'is_favorite': point.isFavorite,
     };
 
-    // Ненужные ключи мы удаляем
     delete adaptedPoint.price;
     delete adaptedPoint.dateFrom;
     delete adaptedPoint.dateTo;

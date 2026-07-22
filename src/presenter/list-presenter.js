@@ -34,7 +34,6 @@ export default class ListPresenter {
   #isServerError = false;
 
   #listPointPresenters = new Map();
-  // formEditComponent = new FormEditEvent();
 
   constructor({ container, headerContainer, btnAddNewPointComponent, pointsModel, offersModel, destinationsModel, filterModel }) {
     this.#listContainer = container; // container - tripEventsContainer приходит из точки входа - контейнер для списка точек путешествия;
@@ -132,7 +131,7 @@ export default class ListPresenter {
     if (this.#isServerError) {
       remove(this.#loadingComponent);
       render(this.#serverErrorComponent, this.#listContainer);
-      return; // Прерываем дальнейшую отрисовку интерфейса
+      return;
     }
 
     if (this.#isLoading) {
@@ -152,14 +151,12 @@ export default class ListPresenter {
     this.#btnAddNewPointComponent.element.disabled = false;
 
     if (this.points.length === 0) {
-      // render(new ListEmpty(), this.#listContainer);
       this.#renderNoPoint();
       return;
     }
 
     this.#renderSort();
     remove(this.#listEmptyComponent);
-    //отрисоваваю контейнер списка - <ul></ul>
     this.#renderContainerList();
 
     this.points.forEach((point) => {
@@ -172,7 +169,6 @@ export default class ListPresenter {
   }
 
   #renderContainerList() {
-    // this.#listEventComponent = new ListTripEvents();
     render(this.#listEventComponent, this.#listContainer);
   }
 
@@ -206,7 +202,6 @@ export default class ListPresenter {
 
     remove(this.#sortComponent);
     remove(this.#loadingComponent);
-    // remove(this.#listEventComponent);
     if (this.#listEmptyComponent) {
       remove(this.#listEmptyComponent);
     }
@@ -217,11 +212,6 @@ export default class ListPresenter {
   }
 
   #handleModelEvent = (updateType, data) => {
-    // console.log(updateType, data);
-    // В зависимости от типа изменений решаем, что делать:
-    // - обновить часть списка (например, когда поменялось описание)
-    // - обновить список (например, когда удалили точку)
-    // - обновить все отрисованное (например, при переключении фильтра)
     switch (updateType) {
       case UpdateType.PATCH:
         this.#listPointPresenters.get(data.id).init(data);
@@ -235,8 +225,6 @@ export default class ListPresenter {
         this.#renderList();
         break;
       case UpdateType.INIT:
-        // this.#isLoading = false;
-        // remove(this.#loadingComponent);
         this.#renderList();
         break;
     }
@@ -247,18 +235,12 @@ export default class ListPresenter {
       return;
     }
 
-    // this.#sortPoints(sortType);
     this.#currentSortType = sortType;
     this.#clearListPoint();
     this.#renderList();
   };
 
   #handleViewAction = (actionType, updateType, update) => {
-    // console.log(actionType, updateType, update);
-    // Здесь будем вызывать обновление модели.
-    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
-    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
-    // update - обновленные данные
     switch (actionType) {
       case UserAction.UPDATE__POINT:
         this.#pointsModel.updatePoint(updateType, update);
