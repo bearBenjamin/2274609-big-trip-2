@@ -18,6 +18,7 @@ export default class DestinationsModel extends Observable {
       this.#destinations = await this.#destinationsTripServer.destinations;
     } catch (err) {
       this.#destinations = [];
+      throw err;
     }
   }
 }

@@ -83,8 +83,22 @@ export default class ListPresenter {
     return this.#destinationsModel.destinations;
   }
 
-  init() {
+  async init() {
     this.#renderList();
+
+    try {
+      await Promise.all([
+        this.#destinationsModel.init(),
+        this.#offerModel.init(),
+        this.#pointsModel.init()
+      ]);
+    } catch (err) {
+      this.#isServerError = true;
+    } finally {
+      this.#isLoading = false;
+      this.#renderList();
+      this.#renderNewEventButton();
+    }
   }
 
   createPoint() {
@@ -98,11 +112,15 @@ export default class ListPresenter {
       this.#btnAddNewPointComponent.element.disabled = true;
     } else {
       this.#btnAddNewPointComponent.setСlickHandler(this.#handleBtnAddNewPointClick);
-      render(this.#btnAddNewPointComponent, this.#headerContainer);
+      this.#btnAddNewPointComponent.element.disabled = false;
     }
   }
 
   #renderSort() {
+    if (this.#sortComponent !== null) {
+      remove(this.#sortComponent);
+    }
+
     this.#sortComponent = new SortView({
       currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortChange,
@@ -111,21 +129,27 @@ export default class ListPresenter {
   }
 
   #renderList() {
-    this.#renderNewEventButton();
     if (this.#isServerError) {
+      remove(this.#loadingComponent);
       render(this.#serverErrorComponent, this.#listContainer);
       return; // Прерываем дальнейшую отрисовку интерфейса
     }
 
     if (this.#isLoading) {
       this.#renderLoading();
+      this.#btnAddNewPointComponent.element.disabled = true;
       return;
     }
 
     if (this.offers.length === 0 || this.destinations.length === 0) {
-      this.#renderLoading();
+      remove(this.#loadingComponent);
+      render(this.#serverErrorComponent, this.#listContainer);
+      this.#btnAddNewPointComponent.element.disabled = true;
       return;
     }
+
+    remove(this.#loadingComponent);
+    this.#btnAddNewPointComponent.element.disabled = false;
 
     if (this.points.length === 0) {
       // render(new ListEmpty(), this.#listContainer);
@@ -211,8 +235,8 @@ export default class ListPresenter {
         this.#renderList();
         break;
       case UpdateType.INIT:
-        this.#isLoading = false;
-        remove(this.#loadingComponent);
+        // this.#isLoading = false;
+        // remove(this.#loadingComponent);
         this.#renderList();
         break;
     }

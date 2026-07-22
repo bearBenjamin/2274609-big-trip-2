@@ -19,6 +19,7 @@ export default class OffersModel extends Observable {
       this.#offers = await this.#offersTripServer.offers;
     } catch (err) {
       this.#offers = [];
+      throw err;
     }
 
     this._notify(UpdateType.INIT);
