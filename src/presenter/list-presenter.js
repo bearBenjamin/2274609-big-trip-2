@@ -1,6 +1,7 @@
 import ListTripEvents from '../view/list-trip-view.js';
 import SortView from '../view/sort-view.js';
 import ListEmpty from '../view/no-point-view.js';
+import ServerErrorView from '../view/server-error-view.js';
 import PointPresenter from './point-presenter.js';
 import AddNewPointPresenter from './add-new-point-presenter.js';
 import LoadingView from '../view/loading-view.js';
@@ -11,9 +12,13 @@ import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
 
 export default class ListPresenter {
   #listContainer = null;
+  #headerContainer = null;
+  #btnAddNewPointComponent = null;
+
   #sortComponent = null;
   #currentSortType = SortType.DAY;
   #filterType = FilterType.EVERITHING;
+
   #newPointPresenter = null;
   #isLoading = true;
 
@@ -25,12 +30,16 @@ export default class ListPresenter {
   #listEventComponent = new ListTripEvents();
   #loadingComponent = new LoadingView();
   #listEmptyComponent = null;
+  #serverErrorComponent = new ServerErrorView();
+  #isServerError = false;
 
   #listPointPresenters = new Map();
   // formEditComponent = new FormEditEvent();
 
-  constructor({ container, pointsModel, offersModel, destinationsModel, filterModel, onNewPointDestroy }) {
+  constructor({ container, headerContainer, btnAddNewPointComponent, pointsModel, offersModel, destinationsModel, filterModel }) {
     this.#listContainer = container; // container - tripEventsContainer приходит из точки входа - контейнер для списка точек путешествия;
+    this.#headerContainer = headerContainer;
+    this.#btnAddNewPointComponent = btnAddNewPointComponent;
     this.#pointsModel = pointsModel;
     this.#offerModel = offersModel;
     this.#destinationsModel = destinationsModel;
@@ -39,7 +48,7 @@ export default class ListPresenter {
     this.#newPointPresenter = new AddNewPointPresenter({
       container: this.#listEventComponent.element,
       onDataChange: this.#handleViewAction,
-      onDestroy: onNewPointDestroy,
+      onDestroy: this.#handleNewFormClose,
       getOffers: () => this.offers,
       getDestinations: () => this.destinations,
     });
@@ -84,6 +93,15 @@ export default class ListPresenter {
     this.#newPointPresenter.init();
   }
 
+  #renderNewEventButton() {
+    if (this.#isServerError) {
+      this.#btnAddNewPointComponent.element.disabled = true;
+    } else {
+      this.#btnAddNewPointComponent.setСlickHandler(this.#handleBtnAddNewPointClick);
+      render(this.#btnAddNewPointComponent, this.#headerContainer);
+    }
+  }
+
   #renderSort() {
     this.#sortComponent = new SortView({
       currentSortType: this.#currentSortType,
@@ -93,6 +111,12 @@ export default class ListPresenter {
   }
 
   #renderList() {
+    this.#renderNewEventButton();
+    if (this.#isServerError) {
+      render(this.#serverErrorComponent, this.#listContainer);
+      return; // Прерываем дальнейшую отрисовку интерфейса
+    }
+
     if (this.#isLoading) {
       this.#renderLoading();
       return;
@@ -227,5 +251,14 @@ export default class ListPresenter {
   #handleModeChange = () => {
     this.#newPointPresenter.destroy();
     this.#listPointPresenters.forEach((presenter) => presenter.resetView());
+  };
+
+  #handleBtnAddNewPointClick = () => {
+    this.createPoint();
+    this.#btnAddNewPointComponent.element.disabled = true;
+  };
+
+  #handleNewFormClose = () => {
+    this.#btnAddNewPointComponent.element.disabled = false;
   };
 }

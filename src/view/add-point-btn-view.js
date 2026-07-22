@@ -6,15 +6,13 @@ New event</button>`;
 export default class BtnAddNewPointView extends AbstractView {
   #hanldeAddPointBtn = null;
 
-  constructor({ onClick }) {
-    super();
-    this.#hanldeAddPointBtn = onClick;
-
-    this.element.addEventListener('click', this.#clickHandler);
-  }
-
   get template() {
     return createTemplate();
+  }
+
+  setСlickHandler(callback) {
+    this.#hanldeAddPointBtn = callback;
+    this.element.addEventListener('click', this.#clickHandler);
   }
 
   #clickHandler = (evt) => {

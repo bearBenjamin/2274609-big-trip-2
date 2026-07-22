@@ -28,9 +28,7 @@ export default class PointsModel extends Observable {
       this.#points = points.map(this.#adaptToClient);
     } catch (err) {
       this.#points = [];
-      /* !!!
-      вот здесь надо будет обрабатывать ошибку сервера и отрисовку ошибки сервера
-      !!! */
+      throw err;
     }
 
     this._notify(UpdateType.INIT);

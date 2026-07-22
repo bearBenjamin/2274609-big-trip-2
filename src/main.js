@@ -21,33 +21,25 @@ const filterContainer = header.querySelector('.trip-controls__filters');
 const main = document.querySelector('.page-main');
 const tripEventsContainer = main.querySelector('.trip-events');
 
-const tripInfoComponent = new TripInfoView();
-
-const pointsModel = new PointsModel({
-  PointsTripServer: new PointsApiService(END__POINT, AUTORIZATION),
-});
-const offersModel = new OffersModel({
-  offersTripServer: new OffersApiService(END__POINT, AUTORIZATION)
-});
-const destinationsModel = new DestinationsModel({
-  destinationsTripServer: new DestinationsApiService(END__POINT, AUTORIZATION),
-});
+const pointsModel = new PointsModel({ PointsTripServer: new PointsApiService(END__POINT, AUTORIZATION) });
+const offersModel = new OffersModel({ offersTripServer: new OffersApiService(END__POINT, AUTORIZATION) });
+const destinationsModel = new DestinationsModel({ destinationsTripServer: new DestinationsApiService(END__POINT, AUTORIZATION) });
 const filterModel = new FiltersModel();
 
-const btnAddNewPointComponent = new BtnAddNewPointView({ onClick: handleBtnAddNewPointClick });
+const tripInfoComponent = new TripInfoView();
+const btnAddNewPointComponent = new BtnAddNewPointView();
 
-// render(btnAddNewPointComponent, tripInfoContainer); возможно это было более правильно -> перенес отрисовку кнопки в init pointModel
-
+render(btnAddNewPointComponent, tripInfoContainer);
 render(tripInfoComponent, tripInfoContainer, RenderPosition.AFTERBEGIN);
-// render(filterComponent, filterContainer);
 
 const listPresenter = new ListPresenter({
   container: tripEventsContainer,
+  headerContainer: tripInfoContainer,
+  btnAddNewPointComponent,
   pointsModel,
   offersModel,
   destinationsModel,
-  filterModel,
-  onNewPointDestroy: handleNewFormClose,
+  filterModel
 });
 
 const filterPresenter = new FilterPresenter({
@@ -56,20 +48,8 @@ const filterPresenter = new FilterPresenter({
   pointsModel
 });
 
-function handleBtnAddNewPointClick() {
-  listPresenter.createPoint();
-  btnAddNewPointComponent.element.disabled = true;
-}
-
-function handleNewFormClose() {
-  btnAddNewPointComponent.element.disabled = false;
-}
-
 listPresenter.init();
 filterPresenter.init();
-pointsModel.init()
-  .finally(() => {
-    render(btnAddNewPointComponent, tripInfoContainer); // так себе решение наверное
-  });
+pointsModel.init();
 destinationsModel.init();
 offersModel.init();
