@@ -59,11 +59,11 @@ const createDescriptionTemplate = (description, pictures) => {
 
   const templatePhotos = createPhotosTemplate(pictures);
 
-  const templateSectionDescription = templatePhotos ? `<section class="event__section  event__section--destination">
+  const templateSectionDescription = `<section class="event__section  event__section--destination">
                     <h3 class="event__section-title  event__section-title--destination">Destination</h3>
                     ${templateDescription}
                     ${templatePhotos}
-                  </section>` : '';
+                  </section>`;
   return templateSectionDescription;
 };
 
@@ -96,7 +96,9 @@ const createDestinationListTemplate = (destinationsData) => {
 const createTemplate = (point, offersData, destinationsData) => {
   const { id, type, dateFrom, dateTo, price, offers, destination, isSubmitDisabled } = point;
 
-  const { name = '', description = '', pictures = [] } = destination || {};
+  const currentDestination = destinationsData.find((item) => item.id === destination);
+
+  const { name = '', description = '', pictures = [] } = currentDestination || {};
 
   const capitalizedType = getCapitalaizedType(type);
 
@@ -140,10 +142,10 @@ const createTemplate = (point, offersData, destinationsData) => {
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dateStart}" readonly>
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${he.encode(dateStart)}" readonly>
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dateEnd}" readonly>
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${he.encode(dateEnd)}" readonly>
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -240,6 +242,11 @@ export default class FormEditEvent extends AbstractStatefulView {
 
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationChangeHandler);
 
+    const offersContainer = this.element.querySelector('.event__available-offers');
+    if (offersContainer) {
+      offersContainer.addEventListener('change', this.#offerChangeHandler);
+    }
+
     //Календари пересоздаются при каждом обновлении DOM-элемента
     this.#setDatepickers();
   };
@@ -257,11 +264,13 @@ export default class FormEditEvent extends AbstractStatefulView {
       disableMobile: true,
     };
 
+    const isNewPoint = !this._state.id;
+
     // Настройка для даты начала
     this.#datepickerFrom = flatpickr(dateStartElement, {
       ...commonConfig,
       defaultDate: dateStartElement.value,
-      minDate: new Date(),
+      minDate: isNewPoint ? new Date() : null,
       maxDate: dateEndElement.value || null,
       onChange: this.#dateFromChangeHandler,
     });
@@ -270,26 +279,25 @@ export default class FormEditEvent extends AbstractStatefulView {
     this.#datepickerTo = flatpickr(dateEndElement, {
       ...commonConfig,
       defaultDate: dateEndElement.value,
-      minDate: dateStartElement.value || new Date(),
+      minDate: dateStartElement.value || (isNewPoint ? new Date() : null),
       onChange: this.#dateToChangeHandler,
     });
   };
 
   // Обработчик изменения даты начала
   #dateFromChangeHandler = ([userDate]) => {
+    const isNewPoint = !this._state.id;
+
     if (!userDate) {
-      this.#datepickerTo.set('minDate', new Date());
+      this.#datepickerTo.set('minDate', isNewPoint ? new Date() : null);
     } else {
       this.#datepickerTo.set('minDate', userDate);
     }
 
-    // Обновляю минимальную дату для поля окончания события путешествия
-    // this.#datepickerTo.set('minDate', userDate);
-
     const actualDateTo = this.#datepickerTo.selectedDates[0];
     const serializeDateTo = actualDateTo ? serializeDate(actualDateTo) : null;
 
-    const isFormInvalid = !this._state.destination || !this._state.destination.name || !userDate || !serializeDateTo || Number(this._state.price) <= 0;
+    const isFormInvalid = !this._state.destination || !userDate || !serializeDateTo || Number(this._state.price) <= 0;
 
     this._setState({
       dateFrom: userDate ? serializeDate(userDate) : null,
@@ -308,12 +316,10 @@ export default class FormEditEvent extends AbstractStatefulView {
       this.#datepickerFrom.set('maxDate', userDate);
     }
 
-    // this.#datepickerFrom.set('maxDate', userDate);
-
     const actualDateFrom = this.#datepickerFrom.selectedDates[0];
     const serializeDateFrom = actualDateFrom ? serializeDate(actualDateFrom) : null;
 
-    const isFormInvalid = !this._state.destination || !this._state.destination.name || !serializeDateFrom || !userDate || Number(this._state.price) <= 0;
+    const isFormInvalid = !this._state.destination || !serializeDateFrom || !userDate || Number(this._state.price) <= 0;
 
     this._setState({
       dateFrom: serializeDateFrom,
@@ -334,19 +340,36 @@ export default class FormEditEvent extends AbstractStatefulView {
 
     this.updateElement({
       type: userType,
-      offers: [], // Сбрасываем выбранные офферы, так как у нового типа будут свои опции
+      offers: [],
+    });
+  };
+
+  #offerChangeHandler = (evt) => {
+    if (!evt.target.classList.contains('event__offer-checkbox')) {
+      return;
+    }
+
+    evt.preventDefault();
+
+    const clickedOfferId = evt.target.dataset.offerId;
+
+    let selectedOffers = [...this._state.offers];
+
+    if (evt.target.checked) {
+      if (!selectedOffers.includes(clickedOfferId)) {
+        selectedOffers.push(clickedOfferId);
+      }
+    } else {
+      selectedOffers = selectedOffers.filter((id) => id !== clickedOfferId);
+    }
+
+    this._setState({
+      offers: selectedOffers
     });
   };
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    // Собираю актуальный массив выбранных офферов
-    const checkedBoxes = this.element.querySelectorAll('.event__offer-checkbox:checked');
-    const selectedOffers = Array.from(checkedBoxes).map((box) => Number(box.dataset.offerId));
-
-    this._setState({
-      offers: selectedOffers
-    });
 
     if (this._state.isSubmitDisabled) {
       return;
@@ -370,7 +393,7 @@ export default class FormEditEvent extends AbstractStatefulView {
     const userPrice = evt.target.value.trim();
     const isOnlyNumbers = /^\d+$/.test(userPrice);
 
-    const isFormInvalid = !isOnlyNumbers || Number(userPrice) <= 0 || !this._state.destination || !this._state.destination.name || !this._state.dateFrom || !this._state.dateTo;
+    const isFormInvalid = !isOnlyNumbers || Number(userPrice) <= 0 || !this._state.destination || !this._state.dateFrom || !this._state.dateTo;
 
 
     this._setState({
@@ -396,7 +419,7 @@ export default class FormEditEvent extends AbstractStatefulView {
     } else {
       const isFormInvalid = !this._state.dateFrom || !this._state.dateTo || Number(this._state.price) <= 0;
       this.updateElement({
-        destination: currentDestination,
+        destination: currentDestination.id,
         isSubmitDisabled: isFormInvalid,
       });
     }
@@ -407,7 +430,6 @@ export default class FormEditEvent extends AbstractStatefulView {
       ...point,
       isSubmitDisabled:
         !point.destination ||
-        !point.destination.name ||
         !point.dateFrom ||
         !point.dateTo ||
         Number(point.price) <= 0,

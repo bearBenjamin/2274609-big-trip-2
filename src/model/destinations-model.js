@@ -1,10 +1,24 @@
 import Observable from '../framework/observable';
-import { destinationsData } from '../mock/point';
 
 export default class DestinationsModel extends Observable {
-  #destinations = destinationsData;
+  #destinationsTripServer = null;
+  #destinations = [];
+
+  constructor({ destinationsTripServer }) {
+    super();
+    this.#destinationsTripServer = destinationsTripServer;
+  }
 
   get destinations() {
     return this.#destinations;
+  }
+
+  async init() {
+    try {
+      this.#destinations = await this.#destinationsTripServer.destinations;
+    } catch (err) {
+      this.#destinations = [];
+      throw err;
+    }
   }
 }

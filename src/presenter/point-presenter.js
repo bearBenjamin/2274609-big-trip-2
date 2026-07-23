@@ -38,6 +38,7 @@ export default class PointPresenter {
     this.#pointComponent = new PointTripEvent({
       point: this.#point,
       offers: this.#offers,
+      destinations: this.#destinations,
       onFormEditBtnClick: () => {
         this.#replacePointToForm();
       },
@@ -103,7 +104,6 @@ export default class PointPresenter {
   }
 
   #handleFavoriteClick = () => {
-    // this.#handleDataChange({ ...this.#point, isFavorite: !this.#point.isFavorite });
     this.#handleDataChange(
       UserAction.UPDATE__POINT,
       UpdateType.PATCH,
@@ -113,7 +113,6 @@ export default class PointPresenter {
 
   #handleFormSubmit = (point) => {
     this.#replaceFormToPoint();
-    // this.#handleDataChange(point);
     this.#handleDataChange(
       UserAction.UPDATE__POINT,
       UpdateType.PATCH,

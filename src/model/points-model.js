@@ -1,29 +1,51 @@
 import Observable from '../framework/observable';
-import { generatePoint } from '../mock/point';
-
-const POINT__COUNT = 4;
+import { UpdateType } from '../const';
 
 export default class PointsModel extends Observable {
-  #points = Array.from({ length: POINT__COUNT }, generatePoint);
+  #pointsTripServer = null;
+  #points = [];
+
+  constructor({ PointsTripServer }) {
+    super();
+    this.#pointsTripServer = PointsTripServer;
+  }
 
   get points() {
     return this.#points;
   }
 
-  updatePoint(UpdateType, update) {
+  async init() {
+    try {
+      const points = await this.#pointsTripServer.points;
+      this.#points = points.map(this.#adaptToClient);
+    } catch (err) {
+      this.#points = [];
+      throw err;
+    }
+
+    this._notify(UpdateType.INIT);
+  }
+
+  async updatePoint(updateType, update) {
     const index = this.#points.findIndex((point) => point.id === update.id);
 
     if (index === -1) {
       throw new Error('Can\'t update unexisting task');
     }
 
-    this.#points = [
-      ...this.#points.slice(0, index),
-      update,
-      ...this.#points.slice(index + 1),
-    ];
+    try {
+      const response = await this.#pointsTripServer.updatePoint(update);
+      const updatedPoints = this.#adaptToClient(response);
+      this.#points = [
+        ...this.#points.slice(0, index),
+        update,
+        ...this.#points.slice(index + 1),
+      ];
 
-    this._notify(UpdateType, update);
+      this._notify(updateType, updatedPoints);
+    } catch (err) {
+      throw new Error('Can\'t update task');
+    }
   }
 
   addPoint(updateType, update) {
@@ -48,5 +70,22 @@ export default class PointsModel extends Observable {
     ];
 
     this._notify(updateType);
+  }
+
+  #adaptToClient(point) {
+    const adaptedPoint = {
+      ...point,
+      price: point['base_price'],
+      dateFrom: point['date_from'],
+      dateTo: point['date_to'],
+      isFavorite: point['is_favorite'],
+    };
+
+    delete adaptedPoint['base_price'];
+    delete adaptedPoint['date_from'];
+    delete adaptedPoint['date_to'];
+    delete adaptedPoint['is_favorite'];
+
+    return adaptedPoint;
   }
 }

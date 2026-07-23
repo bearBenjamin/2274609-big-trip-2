@@ -10,17 +10,16 @@ import {
 } from '../utils/point-utils.js';
 
 const createOffersTemplate = (type, offers, offersData) => {
-  const currentOffers = getTypeOffers(offersData, type);
-  const chosenOffers = currentOffers.offers.filter((offer) =>
-    offers.includes(offer.id), // здесь offers - это предложения из point, которую сейчас отрисовываем
-  );
-
   let listOffers;
+  const currentOffers = getTypeOffers(offersData, type);
 
-  if (chosenOffers.length === 0) {
+  if (!currentOffers) {
     listOffers = '';
     return listOffers;
   }
+  const chosenOffers = currentOffers.offers.filter((offer) =>
+    offers.includes(offer.id), // здесь offers - это предложения из point, которую сейчас отрисовываем
+  );
 
   listOffers = chosenOffers.map((offer) => `
                   <li class="event__offer">
@@ -29,14 +28,14 @@ const createOffersTemplate = (type, offers, offersData) => {
                     <span class="event__offer-price">${offer.price}</span>
                   </li>`);
 
-
   return `<h4 class="visually-hidden">Offers:</h4>
                 <ul class="event__selected-offers">${listOffers.join('')}</ul>`;
 };
 
-const createTemplate = (pointData, offersData) => {
+const createTemplate = (pointData, offersData, destinationsData) => {
   const { type, dateFrom, dateTo, price, offers, destination, isFavorite } = pointData;
-  const { name } = destination;
+  const currentItem = destinationsData.find((item) => destination === item.id);
+  const currentNameCity = currentItem.name;
 
   const capitalizedType = getCapitalaizedType(type);
 
@@ -64,7 +63,7 @@ const createTemplate = (pointData, offersData) => {
                 <div class="event__type">
                   <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
                 </div>
-                <h3 class="event__title">${capitalizedType} ${name}</h3>
+                <h3 class="event__title">${capitalizedType} ${currentNameCity}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
                     <time class="event__start-time" datetime="${machineStartTime}">${humanStartTime}</time>
@@ -93,13 +92,15 @@ const createTemplate = (pointData, offersData) => {
 export default class PointTripEvent extends AbstractView {
   #point = null;
   #offers = [];
+  #destinations = [];
   #handleFormEditBtnClick = null;
   #handleFavoriteBtnClick = null;
 
-  constructor({ point, offers, onFormEditBtnClick, onFavoriteBtnClick }) {
+  constructor({ point, offers, destinations, onFormEditBtnClick, onFavoriteBtnClick }) {
     super();
     this.#point = point;
     this.#offers = offers;
+    this.#destinations = destinations;
     this.#handleFormEditBtnClick = onFormEditBtnClick;
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
     this.#handleFavoriteBtnClick = onFavoriteBtnClick;
@@ -107,7 +108,7 @@ export default class PointTripEvent extends AbstractView {
   }
 
   get template() {
-    return createTemplate(this.#point, this.#offers);
+    return createTemplate(this.#point, this.#offers, this.#destinations);
   }
 
   #editClickHandler = (evt) => {
