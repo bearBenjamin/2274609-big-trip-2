@@ -4,7 +4,7 @@ import he from 'he';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
-const createOffersTemplate = (type, offers, offersData) => {
+const createOffersTemplate = (type, offers, offersData, isDisabled) => {
   const currentOffers = getTypeOffers(offersData, type);
 
   if (!currentOffers || !currentOffers.offers || currentOffers.offers.length === 0) {
@@ -14,7 +14,7 @@ const createOffersTemplate = (type, offers, offersData) => {
   const listOffers = currentOffers.offers.map((offer) => {
     const isChecked = offers.includes(offer.id) ? 'checked' : '';
     const item = `<div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}"  data-offer-id="${offer.id}" ${isChecked}>
+                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}"  data-offer-id="${offer.id}" ${isChecked} ${isDisabled ? 'disabled' : ''}>
                         <label class="event__offer-label" for="event-offer-${offer.id}">
                           <span class="event__offer-title">${offer.title}</span>
                           &plus;&euro;&nbsp;
@@ -93,8 +93,8 @@ const createDestinationListTemplate = (destinationsData) => {
   return templateListCity;
 };
 
-const createTemplate = (point, offersData, destinationsData) => {
-  const { id, type, dateFrom, dateTo, price, offers, destination, isSubmitDisabled } = point;
+const createTemplate = (state, offersData, destinationsData) => {
+  const { id, type, dateFrom, dateTo, price, offers, destination, isSubmitDisabled, isDisabled, isSaving, isDeleting } = state;
 
   const currentDestination = destinationsData.find((item) => item.id === destination);
 
@@ -107,7 +107,7 @@ const createTemplate = (point, offersData, destinationsData) => {
   const dateStart = formatFormDateTime(dateFrom);
   const dateEnd = formatFormDateTime(dateTo);
 
-  const templateSectionOffers = createOffersTemplate(type, offers, offersData);
+  const templateSectionOffers = createOffersTemplate(type, offers, offersData, isDisabled);
 
   const templateListType = createOffersTypeListTemplate(type, offersData);
 
@@ -116,7 +116,11 @@ const createTemplate = (point, offersData, destinationsData) => {
   const templateSectionDescription = createDescriptionTemplate(description, pictures);
 
   const isNewPoint = !id;
-  const resetBtnText = isNewPoint ? 'Cancel' : 'Delete';
+  let resetBtnText = isNewPoint ? 'Cancel' : 'Delete';
+
+  if (isDeleting) {
+    resetBtnText = 'Deleting...';
+  }
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -126,7 +130,7 @@ const createTemplate = (point, offersData, destinationsData) => {
                       <span class="visually-hidden">Choose event type</span>
                       <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
                     </label>
-                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${isDisabled ? 'disabled' : ''}>
 
                     ${templateListType}
 
@@ -136,16 +140,16 @@ const createTemplate = (point, offersData, destinationsData) => {
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${capitalizedType}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(nameCity)}" list="destination-list-1" autocomplete="off">
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(nameCity)}" list="destination-list-1" autocomplete="off" ${isDisabled ? 'disabled' : ''}>
                      ${templateListCity}
                   </div>
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${he.encode(dateStart)}" readonly>
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${he.encode(dateStart)}" readonly ${isDisabled ? 'disabled' : ''}>
                     &mdash;
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${he.encode(dateEnd)}" readonly>
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${he.encode(dateEnd)}" readonly ${isDisabled ? 'disabled' : ''}>
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -153,12 +157,12 @@ const createTemplate = (point, offersData, destinationsData) => {
                       <span class="visually-hidden">Price</span>
                       &euro;
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${he.encode(String(price))}">
+                    <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${he.encode(String(price))}" ${isDisabled ? 'disabled' : ''}>
                   </div>
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDisabled ? 'disabled' : ''}>Save</button>
+                  <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDisabled || isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
                   <button class="event__reset-btn" type="reset">${resetBtnText}</button>
-                   ${isNewPoint ? '' : `<button class="event__rollup-btn" type="button">
+                   ${isNewPoint ? '' : `<button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
                     <span class="visually-hidden">Open event</span>
                     </button>
                   `}
@@ -433,12 +437,18 @@ export default class FormEditEvent extends AbstractStatefulView {
         !point.dateFrom ||
         !point.dateTo ||
         Number(point.price) <= 0,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false
     };
   }
 
   static parseStateToPoint(state) {
     const point = { ...state };
     delete point.isSubmitDisabled;
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
     return point;
   }
 }

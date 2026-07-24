@@ -27,7 +27,7 @@ export default class PointsApiServer extends ApiService {
     return parseResponse;
   }
 
-  async adaptedPoint(point) {
+  async addPoint(point) {
     const response = await this._load({
       url: 'points',
       method: METHOD.POST,
@@ -52,7 +52,7 @@ export default class PointsApiServer extends ApiService {
   #adaptToServer(point) {
     const adaptedPoint = {
       ...point,
-      'base_price': point.price,
+      'base_price': Number(point.price),
       'date_from': point.dateFrom,
       'date_to': point.dateTo,
       'is_favorite': point.isFavorite,
