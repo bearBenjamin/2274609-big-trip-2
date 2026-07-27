@@ -3,6 +3,8 @@ import ApiService from './framework/api-service';
 const METHOD = {
   GET: 'GET',
   PUT: 'PUT',
+  'POST': 'POST',
+  'DELETE': 'DELETE'
 };
 
 export default class PointsApiServer extends ApiService {
@@ -25,10 +27,32 @@ export default class PointsApiServer extends ApiService {
     return parseResponse;
   }
 
+  async addPoint(point) {
+    const response = await this._load({
+      url: 'points',
+      method: METHOD.POST,
+      body: JSON.stringify(this.#adaptToServer(point)),
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+    });
+
+    const parseResponse = await ApiService.parseResponse(response);
+
+    return parseResponse;
+  }
+
+  async deletePoint(point) {
+    const response = await this._load({
+      url: `points/${point.id}`,
+      method: METHOD.DELETE,
+    });
+
+    return response;
+  }
+
   #adaptToServer(point) {
     const adaptedPoint = {
       ...point,
-      'base_price': point.price,
+      'base_price': Number(point.price),
       'date_from': point.dateFrom,
       'date_to': point.dateTo,
       'is_favorite': point.isFavorite,

@@ -2,7 +2,6 @@ import { render, remove, RenderPosition } from '../framework/render';
 import { UpdateType, UserAction, EMPTY__POINT } from '../const';
 import { isEscapeKey } from '../utils/common';
 import FormEditEvent from '../view/form-edit-view';
-import { nanoid } from 'nanoid';
 
 export default class AddNewPointPresenter {
   #container = null;
@@ -34,12 +33,35 @@ export default class AddNewPointPresenter {
       onFormSubmit: this.#handleFormSubmit,
       onPointDeleteClick: null,
       onFormBtnCloseClick: null,
-      onPointCancelClick: this.#handleDeliteClick,
+      onPointCancelClick: this.#handleCancelClick,
     });
 
     render(this.#pointEditComponent, this.#container, RenderPosition.AFTERBEGIN);
 
     document.addEventListener('keydown', this.#escKeyDownHandler);
+  }
+
+  setSaving() {
+    this.#pointEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    if (this.#pointEditComponent === null) {
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#pointEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#pointEditComponent.shake(resetFormState);
   }
 
   destroy() {
@@ -59,12 +81,12 @@ export default class AddNewPointPresenter {
     this.#handleDataChange(
       UserAction.ADD__POINT,
       UpdateType.MINOR,
-      { id: nanoid(), ...point },
+      point,
     );
-    this.destroy();
+    // this.destroy();
   };
 
-  #handleDeliteClick = () => {
+  #handleCancelClick = () => {
     this.destroy();
   };
 
