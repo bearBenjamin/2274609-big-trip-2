@@ -274,7 +274,7 @@ export default class FormEditEvent extends AbstractStatefulView {
     this.#datepickerFrom = flatpickr(dateStartElement, {
       ...commonConfig,
       defaultDate: dateStartElement.value,
-      minDate: isNewPoint ? new Date() : null,
+      // minDate: isNewPoint ? new Date() : null,
       maxDate: dateEndElement.value || null,
       onChange: this.#dateFromChangeHandler,
     });
@@ -290,10 +290,11 @@ export default class FormEditEvent extends AbstractStatefulView {
 
   // Обработчик изменения даты начала
   #dateFromChangeHandler = ([userDate]) => {
-    const isNewPoint = !this._state.id;
+    // const isNewPoint = !this._state.id;
 
     if (!userDate) {
-      this.#datepickerTo.set('minDate', isNewPoint ? new Date() : null);
+      // this.#datepickerTo.set('minDate', isNewPoint ? new Date() : null);
+      this.#datepickerTo.set('minDate', null);
     } else {
       this.#datepickerTo.set('minDate', userDate);
     }
