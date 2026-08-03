@@ -1,6 +1,8 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import dayjs from 'dayjs';
 
+const CITY__COUNT = 3;
+
 const getTripRoute = (points, dataDestinations) => {
   const cityNames = points.map((point) => {
     const pointDestination = dataDestinations.find((dataDestination) => dataDestination.id === point.destination);
@@ -11,7 +13,7 @@ const getTripRoute = (points, dataDestinations) => {
     return '';
   }
 
-  if (cityNames.length <= 3) {
+  if (cityNames.length <= CITY__COUNT) {
     return cityNames.join(' &mdash; ');
   }
 
