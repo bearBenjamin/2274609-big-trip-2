@@ -69,7 +69,7 @@ export default class AddNewPointPresenter {
       return;
     }
 
-    this.#handleDestroy(); // разблокирую кнопку добавления точки
+    this.#handleDestroy();
 
     remove(this.#pointEditComponent);
     this.#pointEditComponent = null;
@@ -83,7 +83,6 @@ export default class AddNewPointPresenter {
       UpdateType.MINOR,
       point,
     );
-    // this.destroy();
   };
 
   #handleCancelClick = () => {

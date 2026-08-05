@@ -97,6 +97,8 @@ export default class PointPresenter {
     }
 
     const resetFormState = () => {
+      this.#formEditComponent.element.classList.remove('shake');
+
       this.#formEditComponent.updateElement({
         isDisabled: false,
         isSaving: false,
@@ -114,6 +116,11 @@ export default class PointPresenter {
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
+
+      this.#formEditComponent.element.classList.remove('shake'); //***
+
+      this.#formEditComponent.reset(this.#point); // ***
+
       this.#replaceFormToPoint();
     }
   }

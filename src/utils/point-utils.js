@@ -1,11 +1,6 @@
 import dayjs from 'dayjs';
 import durationPlugin from 'dayjs/plugin/duration';
-import utc from 'dayjs/plugin/utc';
 
-// плагин чтобы время не пересчитывалось на мой часовой пояс, т.е. сейчас идет +3 часа ко времени из данных
-dayjs.extend(utc);
-
-//подключаю плагин для расчета разницы
 dayjs.extend(durationPlugin);
 
 const DATE__FORMAT = 'MMM D';
@@ -17,41 +12,50 @@ const MACHINE_TIME_FORMAT = 'YYYY-MM-DDTHH:mm';
 const FORM__DATE__TIME__FORMAT = 'DD/MM/YY HH:mm';
 
 function humanazePointDueDate(dueDate) {
-  return dueDate ? dayjs(dueDate).utc().format(DATE__FORMAT).toUpperCase() : '';
+  return dueDate ? dayjs(dueDate)/*.utc()*/.format(DATE__FORMAT).toUpperCase() : '';
 }
 
 function formatMachineDate(dueDate) {
-  return dueDate ? dayjs(dueDate).utc().format(MACHINE_DATE_FORMAT) : '';
+  return dueDate ? dayjs(dueDate).format(MACHINE_DATE_FORMAT) : '';
 }
 
 function humanizePointTime(dueDate) {
-  return dueDate ? dayjs(dueDate).utc().format(HUMAN_TIME_FORMAT) : '';
+  return dueDate ? dayjs(dueDate).format(HUMAN_TIME_FORMAT) : '';
 }
 
 function formatMachineTime(dueDate) {
-  return dueDate ? dayjs(dueDate).utc().format(MACHINE_TIME_FORMAT) : '';
+  return dueDate ? dayjs(dueDate).format(MACHINE_TIME_FORMAT) : '';
 }
 
 function formatFormDateTime(dueDate) {
-  return dueDate ? dayjs(dueDate).utc().format(FORM__DATE__TIME__FORMAT) : '';
+  return dueDate ? dayjs(dueDate).format(FORM__DATE__TIME__FORMAT) : '';
 }
 
 function getEventDuration(dateFrom, dateTo) {
-  const diff = dayjs(dateTo).utc().diff(dayjs(dateFrom).utc()); // Разница в миллисекундах
-  const eventDuration = dayjs.duration(diff); // Превращаю в объект длительности
+  const start = dayjs(dateFrom);
+  const end = dayjs(dateTo);
 
-  const days = eventDuration.days();
-  const hours = eventDuration.hours();
-  const minutes = eventDuration.minutes();
+  const differenceInMinutes = end.diff(start, 'minute');
 
-  // Форматирую вывод в зависимости от получившегося времени (как в ТЗ)
+  if (differenceInMinutes <= 0) {
+    return '00M';
+  }
+
+  const days = Math.floor(differenceInMinutes / (24 * 60));
+  const hours = Math.floor((differenceInMinutes % (24 * 60)) / 60);
+  const minutes = differenceInMinutes % 60;
+
+  const formatNumber = (num) => String(num).padStart(2, '0');
+
   if (days > 0) {
-    return `${String(days).padStart(2, '0')}D ${String(hours).padStart(2, '0')}H ${String(minutes).padStart(2, '0')}M`;
+    return `${formatNumber(days)}D ${formatNumber(hours)}H ${formatNumber(minutes)}M`;
   }
+
   if (hours > 0) {
-    return `${String(hours).padStart(2, '0')}H ${String(minutes).padStart(2, '0')}M`;
+    return `${formatNumber(hours)}H ${formatNumber(minutes)}M`;
   }
-  return `${String(minutes).padStart(2, '0')}M`;
+
+  return `${formatNumber(minutes)}M`;
 }
 
 function serializeDate(date) {
