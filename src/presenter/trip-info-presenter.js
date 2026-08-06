@@ -1,5 +1,5 @@
 import { render, remove, replace, RenderPosition } from '../framework/render';
-import TripInfoView from '../view/trip-info-view';
+import TripInfoView from '../trip-info-view.js';
 import { UpdateType } from '../const.js';
 
 export default class TripInfoPresenter {
@@ -34,14 +34,6 @@ export default class TripInfoPresenter {
       }
       return;
     }
-
-    // if (points.length === 0) {
-    //   if (this.#tripInfoComponent !== null) {
-    //     remove(this.#tripInfoComponent);
-    //     this.#tripInfoComponent = null;
-    //   }
-    //   return;
-    // }
 
     const prevInfoComponent = this.#tripInfoComponent;
 

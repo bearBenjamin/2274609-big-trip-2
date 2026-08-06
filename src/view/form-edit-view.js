@@ -162,7 +162,7 @@ const createTemplate = (state, offersData, destinationsData) => {
 
                   <button class="event__save-btn  btn  btn--blue" type="submit" ${isSubmitDisabled || isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
                   <button class="event__reset-btn" type="reset">${resetBtnText}</button>
-                   ${isNewPoint ? '' : `<button class="event__rollup-btn" type="button" ${isDisabled ? 'disabled' : ''}>
+                   ${isNewPoint ? '' : `<button class="event__rollup-btn" type="button">
                     <span class="visually-hidden">Open event</span>
                     </button>
                   `}
@@ -211,6 +211,13 @@ export default class FormEditEvent extends AbstractStatefulView {
   }
 
   reset(point) {
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.close();
+    }
+    if (this.#datepickerTo) {
+      this.#datepickerTo.close();
+    }
+
     this.updateElement(FormEditEvent.parsePointToState(point));
   }
 
@@ -251,11 +258,9 @@ export default class FormEditEvent extends AbstractStatefulView {
       offersContainer.addEventListener('change', this.#offerChangeHandler);
     }
 
-    //Календари пересоздаются при каждом обновлении DOM-элемента
     this.#setDatepickers();
   };
 
-  // метод инициализации flatpickr
   #setDatepickers = () => {
     const dateStartElement = this.element.querySelector('.event__input--time[name="event-start-time"]');
     const dateEndElement = this.element.querySelector('.event__input--time[name="event-end-time"]');
@@ -270,16 +275,13 @@ export default class FormEditEvent extends AbstractStatefulView {
 
     const isNewPoint = !this._state.id;
 
-    // Настройка для даты начала
     this.#datepickerFrom = flatpickr(dateStartElement, {
       ...commonConfig,
       defaultDate: dateStartElement.value,
-      // minDate: isNewPoint ? new Date() : null,
       maxDate: dateEndElement.value || null,
       onChange: this.#dateFromChangeHandler,
     });
 
-    // Настройка для даты окончания
     this.#datepickerTo = flatpickr(dateEndElement, {
       ...commonConfig,
       defaultDate: dateEndElement.value,
@@ -288,12 +290,8 @@ export default class FormEditEvent extends AbstractStatefulView {
     });
   };
 
-  // Обработчик изменения даты начала
   #dateFromChangeHandler = ([userDate]) => {
-    // const isNewPoint = !this._state.id;
-
     if (!userDate) {
-      // this.#datepickerTo.set('minDate', isNewPoint ? new Date() : null);
       this.#datepickerTo.set('minDate', null);
     } else {
       this.#datepickerTo.set('minDate', userDate);
@@ -313,7 +311,6 @@ export default class FormEditEvent extends AbstractStatefulView {
     this.element.querySelector('.event__save-btn').disabled = isFormInvalid;
   };
 
-  // Обработчик изменения даты окончания
   #dateToChangeHandler = ([userDate]) => {
     if (!userDate) {
       this.#datepickerFrom.set('maxDate', null);
@@ -397,9 +394,7 @@ export default class FormEditEvent extends AbstractStatefulView {
     evt.preventDefault();
     const userPrice = evt.target.value.trim();
     const isOnlyNumbers = /^\d+$/.test(userPrice);
-
     const isFormInvalid = !isOnlyNumbers || Number(userPrice) <= 0 || !this._state.destination || !this._state.dateFrom || !this._state.dateTo;
-
 
     this._setState({
       price: isOnlyNumbers ? Number(userPrice) : 0,

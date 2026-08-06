@@ -10,7 +10,7 @@ export default class BtnAddNewPointView extends AbstractView {
     return createTemplate();
   }
 
-  setСlickHandler(callback) {
+  setClickHandler(callback) {
     this.#hanldeAddPointBtn = callback;
     this.element.addEventListener('click', this.#clickHandler);
   }

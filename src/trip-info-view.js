@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractView from './framework/view/abstract-view.js';
 import dayjs from 'dayjs';
 
 const CITY__COUNT = 3;
@@ -28,11 +28,16 @@ const getTripDates = (points) => {
   const dateStart = dayjs(points[0].dateFrom);
   const dateEnd = dayjs(points[points.length - 1].dateTo);
 
-  if (dateStart.month() === dateEnd.month()) {
-    return `${dateStart.format('MMM D')}&nbsp;&mdash;&nbsp;${dateEnd.format('D')}`;
+  const startFormatted = dateStart.format('D MMM').toUpperCase();
+  const endFormatted = dateEnd.format('D MMM').toUpperCase();
+
+  if (dateStart.year() === dateEnd.year()) {
+    return `${startFormatted}&nbsp;&mdash;&nbsp;${endFormatted}`;
   }
-  return `${dateStart.format('MMM D')}&nbsp;&mdash;&nbsp;${dateEnd.format('MMM D')}`;
+
+  return `${dateStart.format('D MMM YYYY').toUpperCase()}&nbsp;&mdash;&nbsp;${dateEnd.format('D MMM YYYY').toUpperCase()}`;
 };
+
 
 const getTripTotalPrice = (points, dataOffers) => points.reduce((total, point) => {
   let pointPrice = Number(point.price || 0);

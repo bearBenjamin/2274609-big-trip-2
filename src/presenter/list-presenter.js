@@ -6,9 +6,10 @@ import PointPresenter from './point-presenter.js';
 import AddNewPointPresenter from './add-new-point-presenter.js';
 import LoadingView from '../view/loading-view.js';
 import { render, remove } from '../framework/render.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 import { sortTime, sortPrice, sortDay } from '../utils/point-utils.js';
 import { filter } from '../utils/filter-utils.js';
-import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
+import { SortType, UpdateType, UserAction, FilterType, TimeLimit } from '../const.js';
 
 export default class ListPresenter {
   #listContainer = null;
@@ -17,10 +18,15 @@ export default class ListPresenter {
 
   #sortComponent = null;
   #currentSortType = SortType.DAY;
-  #filterType = FilterType.EVERITHING;
+  #filterType = FilterType.EVERYTHING;
 
   #newPointPresenter = null;
   #isLoading = true;
+
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
 
   #pointsModel = {};
   #offerModel = [];
@@ -36,7 +42,7 @@ export default class ListPresenter {
   #listPointPresenters = new Map();
 
   constructor({ container, headerContainer, btnAddNewPointComponent, pointsModel, offersModel, destinationsModel, filterModel }) {
-    this.#listContainer = container; // container - tripEventsContainer приходит из точки входа - контейнер для списка точек путешествия;
+    this.#listContainer = container;
     this.#headerContainer = headerContainer;
     this.#btnAddNewPointComponent = btnAddNewPointComponent;
     this.#pointsModel = pointsModel;
@@ -102,7 +108,16 @@ export default class ListPresenter {
 
   createPoint() {
     this.#currentSortType = SortType.DAY;
-    this.#filtersModel.setFilter(UpdateType.MAJOR, FilterType.EVERITHING);
+    this.#filtersModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+
+    if (this.points.length === 0) {
+      if (this.#listEmptyComponent) {
+        remove(this.#listEmptyComponent);
+        this.#listEmptyComponent = null;
+      }
+      this.#renderContainerList();
+    }
+
     this.#newPointPresenter.init();
   }
 
@@ -110,7 +125,7 @@ export default class ListPresenter {
     if (this.#isServerError) {
       this.#btnAddNewPointComponent.element.disabled = true;
     } else {
-      this.#btnAddNewPointComponent.setСlickHandler(this.#handleBtnAddNewPointClick);
+      this.#btnAddNewPointComponent.setClickHandler(this.#handleBtnAddNewPointClick);
       this.#btnAddNewPointComponent.element.disabled = false;
     }
   }
@@ -242,10 +257,10 @@ export default class ListPresenter {
 
   #handleViewAction = async (actionType, updateType, update) => {
     const currentPresenter = this.#listPointPresenters.get(update.id);
+    this.#uiBlocker.block();
 
     switch (actionType) {
       case UserAction.UPDATE__POINT:
-        // this.#pointsModel.updatePoint(updateType, update);
         currentPresenter.setSaving();
         try {
           await this.#pointsModel.updatePoint(updateType, update);
@@ -254,16 +269,15 @@ export default class ListPresenter {
         }
         break;
       case UserAction.ADD__POINT:
-        // this.#pointsModel.addPoint(updateType, update);
         this.#newPointPresenter.setSaving();
         try {
           await this.#pointsModel.addPoint(updateType, update);
+          this.#newPointPresenter.destroy();
         } catch (err) {
           this.#newPointPresenter.setAborting();
         }
         break;
       case UserAction.DELETE__POINT:
-        // this.#pointsModel.deletePoint(updateType, update);
         currentPresenter.setDeleting();
         try {
           await this.#pointsModel.deletePoint(updateType, update);
@@ -272,6 +286,8 @@ export default class ListPresenter {
         }
         break;
     }
+
+    this.#uiBlocker.unblock();
   };
 
   #handleModeChange = () => {
@@ -286,5 +302,10 @@ export default class ListPresenter {
 
   #handleNewFormClose = () => {
     this.#btnAddNewPointComponent.element.disabled = false;
+
+    if (this.points.length === 0) {
+      remove(this.#listEventComponent);
+      this.#renderNoPoint();
+    }
   };
 }

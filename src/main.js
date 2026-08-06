@@ -1,13 +1,12 @@
 import ListPresenter from './presenter/list-presenter.js';
 import FilterPresenter from './presenter/filter-presenter.js';
 import TripInfoPresenter from './presenter/trip-info-presenter.js';
-// import TripInfoView from './view/trip-info-view.js';
 import BtnAddNewPointView from './view/add-point-btn-view.js';
 import PointsModel from './model/points-model.js';
 import OffersModel from './model/offers-model.js';
 import DestinationsModel from './model/destinations-model.js';
 import FiltersModel from './model/filter-model.js';
-import { render, /* RenderPosition */ } from './framework/render.js';
+import { render, } from './framework/render.js';
 import PointsApiService from './points-api-service.js';
 import DestinationsApiService from './destinations-api-service.js';
 import OffersApiService from './offers-api-service.js';
@@ -27,7 +26,6 @@ const offersModel = new OffersModel({ offersTripServer: new OffersApiService(END
 const destinationsModel = new DestinationsModel({ destinationsTripServer: new DestinationsApiService(END__POINT, AUTORIZATION) });
 const filterModel = new FiltersModel();
 
-// const tripInfoComponent = new TripInfoView();
 const tripInfoPresenter = new TripInfoPresenter({
   tripInfoContainer,
   pointsModel,
@@ -38,7 +36,6 @@ const tripInfoPresenter = new TripInfoPresenter({
 const btnAddNewPointComponent = new BtnAddNewPointView();
 
 render(btnAddNewPointComponent, tripInfoContainer);
-// render(tripInfoComponent, tripInfoContainer, RenderPosition.AFTERBEGIN);
 
 const listPresenter = new ListPresenter({
   container: tripEventsContainer,

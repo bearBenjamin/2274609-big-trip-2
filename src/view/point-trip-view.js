@@ -18,7 +18,7 @@ const createOffersTemplate = (type, offers, offersData) => {
     return listOffers;
   }
   const chosenOffers = currentOffers.offers.filter((offer) =>
-    offers.includes(offer.id), // здесь offers - это предложения из point, которую сейчас отрисовываем
+    offers.includes(offer.id),
   );
 
   listOffers = chosenOffers.map((offer) => `
@@ -39,22 +39,19 @@ const createTemplate = (pointData, offersData, destinationsData) => {
 
   const capitalizedType = getCapitalaizedType(type);
 
-  // блок работы с датой и временем
   const machineDate = formatMachineDate(dateFrom);
   const date = humanazePointDueDate(dateFrom);
 
-  const machineStartTime = formatMachineTime(dateFrom); // "2019-03-18T10:30"
-  const humanStartTime = humanizePointTime(dateFrom); // "10:30"
+  const machineStartTime = formatMachineTime(dateFrom);
+  const humanStartTime = humanizePointTime(dateFrom);
 
-  const machineEndTime = formatMachineTime(dateTo); // "2019-03-18T11:00"
-  const humanEndTime = humanizePointTime(dateTo); // "11:00"
+  const machineEndTime = formatMachineTime(dateTo);
+  const humanEndTime = humanizePointTime(dateTo);
 
   const durationDate = getEventDuration(dateFrom, dateTo);
 
-  // блок работы с offers
   const offersTemplate = createOffersTemplate(type, offers, offersData);
 
-  // блок работы с избранным
   const favoriteClassName = isFavorite ? 'event__favorite-btn--active' : '';
 
   return `<li class="trip-events__item">

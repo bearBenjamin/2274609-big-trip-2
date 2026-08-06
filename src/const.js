@@ -10,17 +10,26 @@ const POINT__TYPE = [
   'restaurant',
 ];
 
+const EMPTY__POINT = {
+  type: 'flight',
+  destination: {},
+  dateFrom: null,
+  dateTo: null,
+  price: 0,
+  offers: [],
+  isFavorite: false,
+};
+
 const FilterType = {
-  EVERITHING: 'EVERITHING',
+  EVERYTHING: 'EVERYTHING',
   FUTURE: 'FUTURE',
   PRESENT: 'PRESENT',
   PAST: 'PAST',
 };
 
-
 const MessageNoEvent = {
-  EVERITHING: 'Click New Event to create your first point',
-  PAST: 'There are no past events',
+  EVERYTHING: 'Click New Event to create your first point',
+  PAST: 'There are no past events now',
   PRESENT: 'There are no present events now',
   FUTURE: 'There are no future events now',
 };
@@ -44,15 +53,9 @@ const UpdateType = {
   INIT: 'INIT',
 };
 
-const EMPTY__POINT = {
-  type: 'flight',
-  destination: {},
-  dateFrom: null,
-  dateTo: null,
-  price: 0,
-  offers: [],
-  isFavorite: false,
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1050,
 };
 
-
-export { POINT__TYPE, FilterType, MessageNoEvent, SortType, UserAction, UpdateType, EMPTY__POINT };
+export { POINT__TYPE, FilterType, MessageNoEvent, SortType, UserAction, UpdateType, EMPTY__POINT, TimeLimit };
