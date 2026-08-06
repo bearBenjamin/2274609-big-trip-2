@@ -211,6 +211,13 @@ export default class FormEditEvent extends AbstractStatefulView {
   }
 
   reset(point) {
+    if (this.#datepickerFrom) {
+      this.#datepickerFrom.close();
+    }
+    if (this.#datepickerTo) {
+      this.#datepickerTo.close();
+    }
+
     this.updateElement(FormEditEvent.parsePointToState(point));
   }
 
