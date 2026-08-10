@@ -1,7 +1,6 @@
 import AbstractView from './framework/view/abstract-view.js';
+import { CITY__COUNT } from './const.js';
 import dayjs from 'dayjs';
-
-const CITY__COUNT = 3;
 
 const getTripRoute = (points, dataDestinations) => {
   const cityNames = points.map((point) => {

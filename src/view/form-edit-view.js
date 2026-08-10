@@ -214,6 +214,7 @@ export default class FormEditEvent extends AbstractStatefulView {
     if (this.#datepickerFrom) {
       this.#datepickerFrom.close();
     }
+
     if (this.#datepickerTo) {
       this.#datepickerTo.close();
     }

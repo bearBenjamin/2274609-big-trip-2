@@ -10,9 +10,7 @@ import { render, } from './framework/render.js';
 import PointsApiService from './points-api-service.js';
 import DestinationsApiService from './destinations-api-service.js';
 import OffersApiService from './offers-api-service.js';
-
-const AUTORIZATION = 'Basic Hew76qE2hdfW23sD';
-const END__POINT = 'https://22.objects.htmlacademy.pro/big-trip';
+import { AUTORIZATION, END__POINT } from './const.js';
 
 const header = document.querySelector('.page-header');
 const tripInfoContainer = header.querySelector('.trip-main');

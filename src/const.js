@@ -1,4 +1,4 @@
-const POINT__TYPE = [
+const POINT__TYPES = [
   'taxi',
   'bus',
   'train',
@@ -18,6 +18,23 @@ const EMPTY__POINT = {
   price: 0,
   offers: [],
   isFavorite: false,
+};
+
+const TIME__LIMIT = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1050,
+};
+
+const AUTORIZATION = 'Basic Hew76qE2hdfW23sD';
+const END__POINT = 'https://22.objects.htmlacademy.pro/big-trip';
+
+const CITY__COUNT = 3;
+
+const METHOD = {
+  GET: 'GET',
+  PUT: 'PUT',
+  'POST': 'POST',
+  'DELETE': 'DELETE'
 };
 
 const FilterType = {
@@ -53,9 +70,16 @@ const UpdateType = {
   INIT: 'INIT',
 };
 
-const TimeLimit = {
-  LOWER_LIMIT: 350,
-  UPPER_LIMIT: 1050,
+export {
+  POINT__TYPES as POINT__TYPE,
+  FilterType,
+  MessageNoEvent,
+  SortType,
+  UserAction,
+  UpdateType,
+  EMPTY__POINT,
+  TIME__LIMIT as TimeLimit,
+  AUTORIZATION, END__POINT,
+  CITY__COUNT,
+  METHOD
 };
-
-export { POINT__TYPE, FilterType, MessageNoEvent, SortType, UserAction, UpdateType, EMPTY__POINT, TimeLimit };
