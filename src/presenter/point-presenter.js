@@ -117,9 +117,9 @@ export default class PointPresenter {
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
 
-      this.#formEditComponent.element.classList.remove('shake'); //***
+      this.#formEditComponent.element.classList.remove('shake');
 
-      this.#formEditComponent.reset(this.#point); // ***
+      this.#formEditComponent.reset(this.#point);
 
       this.#replaceFormToPoint();
     }
@@ -155,7 +155,6 @@ export default class PointPresenter {
   };
 
   #handleFormSubmit = (point) => {
-    //this.#replaceFormToPoint();
     this.#handleDataChange(
       UserAction.UPDATE__POINT,
       UpdateType.MINOR,

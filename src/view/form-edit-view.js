@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { getCapitalaizedType, formatFormDateTime, serializeDate, getTypeOffers } from '../utils/point-utils.js';
+import { getCapitalaizedType, formatFormDateTime, getTypeOffers } from '../utils/point-utils.js';
 import he from 'he';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
@@ -274,19 +274,17 @@ export default class FormEditEvent extends AbstractStatefulView {
       disableMobile: true,
     };
 
-    const isNewPoint = !this._state.id;
-
     this.#datepickerFrom = flatpickr(dateStartElement, {
       ...commonConfig,
       defaultDate: dateStartElement.value,
-      maxDate: dateEndElement.value || null,
+      maxDate: this._state.dateTo || null,
       onChange: this.#dateFromChangeHandler,
     });
 
     this.#datepickerTo = flatpickr(dateEndElement, {
       ...commonConfig,
       defaultDate: dateEndElement.value,
-      minDate: dateStartElement.value || (isNewPoint ? new Date() : null),
+      minDate: this._state.dateFrom || null,
       onChange: this.#dateToChangeHandler,
     });
   };
@@ -298,13 +296,12 @@ export default class FormEditEvent extends AbstractStatefulView {
       this.#datepickerTo.set('minDate', userDate);
     }
 
-    const actualDateTo = this.#datepickerTo.selectedDates[0];
-    const serializeDateTo = actualDateTo ? serializeDate(actualDateTo) : null;
+    const serializeDateTo = userDate ? userDate : null;
 
     const isFormInvalid = !this._state.destination || !userDate || !serializeDateTo || Number(this._state.price) <= 0;
 
     this._setState({
-      dateFrom: userDate ? serializeDate(userDate) : null,
+      dateFrom: userDate ? userDate : null,
       dateTo: serializeDateTo,
       isSubmitDisabled: isFormInvalid,
     });
@@ -319,14 +316,14 @@ export default class FormEditEvent extends AbstractStatefulView {
       this.#datepickerFrom.set('maxDate', userDate);
     }
 
-    const actualDateFrom = this.#datepickerFrom.selectedDates[0];
-    const serializeDateFrom = actualDateFrom ? serializeDate(actualDateFrom) : null;
+    const serializeDateFrom = this._state.dateFrom;
+    const serializeDateTo = userDate ? userDate : null;
 
     const isFormInvalid = !this._state.destination || !serializeDateFrom || !userDate || Number(this._state.price) <= 0;
 
     this._setState({
       dateFrom: serializeDateFrom,
-      dateTo: userDate ? serializeDate(userDate) : null,
+      dateTo: serializeDateTo,
       isSubmitDisabled: isFormInvalid,
     });
 
@@ -395,7 +392,16 @@ export default class FormEditEvent extends AbstractStatefulView {
     evt.preventDefault();
     const userPrice = evt.target.value.trim();
     const isOnlyNumbers = /^\d+$/.test(userPrice);
-    const isFormInvalid = !isOnlyNumbers || Number(userPrice) <= 0 || !this._state.destination || !this._state.dateFrom || !this._state.dateTo;
+
+    const hasDestination = Boolean(
+      this._state.destination &&
+      (typeof this._state.destination === 'string' ||
+        typeof this._state.destination === 'number' ||
+        this._state.destination.id ||
+        this._state.destination.name)
+    );
+
+    const isFormInvalid = !isOnlyNumbers || Number(userPrice) <= 0 || !hasDestination || !this._state.dateFrom || !this._state.dateTo;
 
     this._setState({
       price: isOnlyNumbers ? Number(userPrice) : 0,
@@ -427,10 +433,18 @@ export default class FormEditEvent extends AbstractStatefulView {
   };
 
   static parsePointToState(point) {
+    const hasDestination = Boolean(
+      point.destination &&
+      (typeof point.destination === 'string' ||
+        typeof point.destination === 'number' ||
+        point.destination.id ||
+        point.destination.name)
+    );
+
     return {
       ...point,
       isSubmitDisabled:
-        !point.destination ||
+        !hasDestination ||
         !point.dateFrom ||
         !point.dateTo ||
         Number(point.price) <= 0,
