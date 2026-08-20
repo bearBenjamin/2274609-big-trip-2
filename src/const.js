@@ -1,17 +1,5 @@
 import { nanoid } from 'nanoid';
 
-const POINT_TYPES = [
-  'taxi',
-  'bus',
-  'train',
-  'ship',
-  'drive',
-  'flight',
-  'check-in',
-  'sightseeing',
-  'restaurant',
-];
-
 const EMPTY_POINT = {
   type: 'flight',
   destination: {},
@@ -73,7 +61,6 @@ const UpdateType = {
 };
 
 export {
-  POINT_TYPES,
   FilterType,
   MessageNoEvent,
   SortType,
