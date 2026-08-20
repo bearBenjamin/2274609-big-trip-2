@@ -1,8 +1,6 @@
 import dayjs from 'dayjs';
 import durationPlugin from 'dayjs/plugin/duration';
 
-dayjs.extend(durationPlugin);
-
 const DATE__FORMAT = 'MMM D';
 const MACHINE_DATE_FORMAT = 'YYYY-MM-DD';
 
@@ -10,6 +8,8 @@ const HUMAN_TIME_FORMAT = 'HH:mm';
 const MACHINE_TIME_FORMAT = 'YYYY-MM-DDTHH:mm';
 
 const FORM__DATE__TIME__FORMAT = 'DD/MM/YY HH:mm';
+
+dayjs.extend(durationPlugin);
 
 function humanizePointDueDate(dueDate) {
   return dueDate ? dayjs(dueDate).format(DATE__FORMAT).toUpperCase() : '';
