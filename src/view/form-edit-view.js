@@ -1,5 +1,5 @@
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
-import { getCapitalaizedType, formatFormDateTime, getTypeOffers } from '../utils/point-utils.js';
+import { getCapitalizedType, formatFormDateTime, getTypeOffers } from '../utils/point-utils.js';
 import he from 'he';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
@@ -100,7 +100,7 @@ const createTemplate = (state, offersData, destinationsData) => {
 
   const { name = '', description = '', pictures = [] } = currentDestination || {};
 
-  const capitalizedType = getCapitalaizedType(type);
+  const capitalizedType = getCapitalizedType(type);
 
   const nameCity = name.length !== 0 ? name : '';
 

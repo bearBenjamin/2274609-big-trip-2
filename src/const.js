@@ -27,7 +27,7 @@ const TIME__LIMIT = {
   UPPER_LIMIT: 1050,
 };
 
-const AUTORIZATION = `Basic ${nanoid()}`;
+const AUTHORIZATION = `Basic ${nanoid()}`;
 const END__POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 
 const CITY__COUNT = 3;
@@ -81,7 +81,7 @@ export {
   UpdateType,
   EMPTY__POINT,
   TIME__LIMIT as TimeLimit,
-  AUTORIZATION, END__POINT,
+  AUTHORIZATION, END__POINT,
   CITY__COUNT,
   METHOD
 };

@@ -1,13 +1,13 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import he from 'he';
 import {
-  humanazePointDueDate,
+  humanizePointDueDate,
   formatMachineDate,
   formatMachineTime,
   humanizePointTime,
   getEventDuration,
   getTypeOffers,
-  getCapitalaizedType
+  getCapitalizedType
 } from '../utils/point-utils.js';
 
 const createOffersTemplate = (type, offers, offersData) => {
@@ -38,10 +38,10 @@ const createTemplate = (pointData, offersData, destinationsData) => {
   const currentItem = destinationsData.find((item) => destination === item.id);
   const currentNameCity = currentItem.name;
 
-  const capitalizedType = getCapitalaizedType(type);
+  const capitalizedType = getCapitalizedType(type);
 
   const machineDate = formatMachineDate(dateFrom);
-  const date = humanazePointDueDate(dateFrom);
+  const date = humanizePointDueDate(dateFrom);
 
   const machineStartTime = formatMachineTime(dateFrom);
   const humanStartTime = humanizePointTime(dateFrom);
