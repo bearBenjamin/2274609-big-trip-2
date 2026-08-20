@@ -1,3 +1,5 @@
+import { nanoid } from 'nanoid';
+
 const POINT__TYPES = [
   'taxi',
   'bus',
@@ -25,7 +27,7 @@ const TIME__LIMIT = {
   UPPER_LIMIT: 1050,
 };
 
-const AUTORIZATION = 'Basic Hew76qE2hdfW23sD';
+const AUTORIZATION = `Basic ${nanoid()}`;
 const END__POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 
 const CITY__COUNT = 3;
