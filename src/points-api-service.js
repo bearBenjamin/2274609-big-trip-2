@@ -1,5 +1,5 @@
 import ApiService from './framework/api-service';
-import { METHOD } from './const';
+import { Method } from './const';
 
 export default class PointsApiServer extends ApiService {
   get points() {
@@ -11,7 +11,7 @@ export default class PointsApiServer extends ApiService {
   async updatePoint(point) {
     const response = await this._load({
       url: `points/${point.id}`,
-      method: METHOD.PUT,
+      method: Method.PUT,
       body: JSON.stringify(this.#adaptToServer(point)),
       headers: new Headers({ 'Content-Type': 'application/json' })
     });
@@ -24,7 +24,7 @@ export default class PointsApiServer extends ApiService {
   async addPoint(point) {
     const response = await this._load({
       url: 'points',
-      method: METHOD.POST,
+      method: Method.POST,
       body: JSON.stringify(this.#adaptToServer(point)),
       headers: new Headers({ 'Content-Type': 'application/json' }),
     });
@@ -37,7 +37,7 @@ export default class PointsApiServer extends ApiService {
   async deletePoint(point) {
     const response = await this._load({
       url: `points/${point.id}`,
-      method: METHOD.DELETE,
+      method: Method.DELETE,
     });
 
     return response;

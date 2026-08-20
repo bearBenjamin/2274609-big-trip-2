@@ -10,7 +10,7 @@ import { render, } from './framework/render.js';
 import PointsApiService from './points-api-service.js';
 import DestinationsApiService from './destinations-api-service.js';
 import OffersApiService from './offers-api-service.js';
-import { AUTHORIZATION, END__POINT } from './const.js';
+import { AUTHORIZATION, END_POINT } from './const.js';
 
 const header = document.querySelector('.page-header');
 const tripInfoContainer = header.querySelector('.trip-main');
@@ -19,9 +19,9 @@ const filterContainer = header.querySelector('.trip-controls__filters');
 const main = document.querySelector('.page-main');
 const tripEventsContainer = main.querySelector('.trip-events');
 
-const pointsModel = new PointsModel({ PointsTripServer: new PointsApiService(END__POINT, AUTHORIZATION) });
-const offersModel = new OffersModel({ offersTripServer: new OffersApiService(END__POINT, AUTHORIZATION) });
-const destinationsModel = new DestinationsModel({ destinationsTripServer: new DestinationsApiService(END__POINT, AUTHORIZATION) });
+const pointsModel = new PointsModel({ PointsTripServer: new PointsApiService(END_POINT, AUTHORIZATION) });
+const offersModel = new OffersModel({ offersTripServer: new OffersApiService(END_POINT, AUTHORIZATION) });
+const destinationsModel = new DestinationsModel({ destinationsTripServer: new DestinationsApiService(END_POINT, AUTHORIZATION) });
 const filterModel = new FiltersModel();
 
 const tripInfoPresenter = new TripInfoPresenter({

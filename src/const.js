@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 
-const POINT__TYPES = [
+const POINT_TYPES = [
   'taxi',
   'bus',
   'train',
@@ -12,7 +12,7 @@ const POINT__TYPES = [
   'restaurant',
 ];
 
-const EMPTY__POINT = {
+const EMPTY_POINT = {
   type: 'flight',
   destination: {},
   dateFrom: null,
@@ -22,17 +22,17 @@ const EMPTY__POINT = {
   isFavorite: false,
 };
 
-const TIME__LIMIT = {
+const TimeLimit = {
   LOWER_LIMIT: 350,
   UPPER_LIMIT: 1050,
 };
 
 const AUTHORIZATION = `Basic ${nanoid()}`;
-const END__POINT = 'https://22.objects.htmlacademy.pro/big-trip';
+const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 
-const CITY__COUNT = 3;
+const CITY_COUNT = 3;
 
-const METHOD = {
+const Method = {
   GET: 'GET',
   PUT: 'PUT',
   'POST': 'POST',
@@ -73,15 +73,15 @@ const UpdateType = {
 };
 
 export {
-  POINT__TYPES as POINT__TYPE,
+  POINT_TYPES,
   FilterType,
   MessageNoEvent,
   SortType,
   UserAction,
   UpdateType,
-  EMPTY__POINT,
-  TIME__LIMIT as TimeLimit,
-  AUTHORIZATION, END__POINT,
-  CITY__COUNT,
-  METHOD
+  EMPTY_POINT,
+  TimeLimit,
+  AUTHORIZATION, END_POINT,
+  CITY_COUNT,
+  Method
 };

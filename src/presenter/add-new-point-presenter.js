@@ -1,5 +1,5 @@
 import { render, remove, RenderPosition } from '../framework/render';
-import { UpdateType, UserAction, EMPTY__POINT } from '../const';
+import { UpdateType, UserAction, EMPTY_POINT } from '../const';
 import { isEscapeKey } from '../utils/common';
 import FormEditEvent from '../view/form-edit-view';
 
@@ -26,7 +26,7 @@ export default class AddNewPointPresenter {
     }
 
     this.#pointEditComponent = new FormEditEvent({
-      point: EMPTY__POINT,
+      point: EMPTY_POINT,
       offers: this.#getOffers(),
       destinations: this.#getDestinations(),
 

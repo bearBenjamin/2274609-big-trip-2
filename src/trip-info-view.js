@@ -1,5 +1,5 @@
 import AbstractView from './framework/view/abstract-view.js';
-import { CITY__COUNT } from './const.js';
+import { CITY_COUNT } from './const.js';
 import dayjs from 'dayjs';
 
 const getTripRoute = (points, dataDestinations) => {
@@ -12,7 +12,7 @@ const getTripRoute = (points, dataDestinations) => {
     return '';
   }
 
-  if (cityNames.length <= CITY__COUNT) {
+  if (cityNames.length <= CITY_COUNT) {
     return cityNames.join(' &mdash; ');
   }
 
