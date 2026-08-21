@@ -184,6 +184,8 @@ export default class FormEditEvent extends AbstractStatefulView {
   #handleFormBtnCloseClick = null;
   #handleFormBtnCancelClick = null;
 
+  #saveButton = null;
+
   #datepickerFrom = null;
   #datepickerTo = null;
 
@@ -238,6 +240,8 @@ export default class FormEditEvent extends AbstractStatefulView {
   }
 
   _restoreHandlers = () => {
+    this.#saveButton = this.element.querySelector('.event__save-btn');
+
     const isNewPoint = !this._state.id;
 
     if (isNewPoint) {
@@ -304,7 +308,8 @@ export default class FormEditEvent extends AbstractStatefulView {
       isSubmitDisabled: isFormInvalid,
     });
 
-    this.element.querySelector('.event__save-btn').disabled = isFormInvalid;
+    // this.element.querySelector('.event__save-btn').disabled = isFormInvalid;
+    this.#saveButton.disabled = isFormInvalid;
   };
 
   #dateToChangeHandler = ([userDate]) => {
@@ -321,7 +326,8 @@ export default class FormEditEvent extends AbstractStatefulView {
       isSubmitDisabled: isFormInvalid,
     });
 
-    this.element.querySelector('.event__save-btn').disabled = isFormInvalid;
+    // this.element.querySelector('.event__save-btn').disabled = isFormInvalid;
+    this.#saveButton.disabled = isFormInvalid;
   };
 
   #typeChangeHandler = (evt) => {
@@ -394,7 +400,8 @@ export default class FormEditEvent extends AbstractStatefulView {
       isSubmitDisabled: isFormInvalid,
     });
 
-    this.element.querySelector('.event__save-btn').disabled = isFormInvalid;
+    // this.element.querySelector('.event__save-btn').disabled = isFormInvalid;
+    this.#saveButton.disabled = isFormInvalid;
   };
 
   #destinationChangeHandler = (evt) => {
