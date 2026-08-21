@@ -26,7 +26,7 @@ const createOffersTemplate = (type, offers, offersData) => {
                   <li class="event__offer">
                     <span class="event__offer-title">${he.encode(offer.title)}</span>
                     &plus;&euro;&nbsp;
-                    <span class="event__offer-price">${offer.price}</span>
+                    <span class="event__offer-price">${he.encode(String(offer.price))}</span>
                   </li>`);
 
   return `<h4 class="visually-hidden">Offers:</h4>
@@ -71,7 +71,7 @@ const createTemplate = (pointData, offersData, destinationsData) => {
                   <p class="event__duration">${durationDate}</p>
                 </div>
                 <p class="event__price">
-                  &euro;&nbsp;<span class="event__price-value">${price}</span>
+                  &euro;&nbsp;<span class="event__price-value">${he.encode(String(price))}</span>
                 </p>
                 ${offersTemplate}
                 <button class="event__favorite-btn ${favoriteClassName}" type="button">

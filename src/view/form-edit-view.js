@@ -13,12 +13,13 @@ const createOffersTemplate = (type, offers, offersData, isDisabled) => {
 
   const listOffers = currentOffers.offers.map((offer) => {
     const isChecked = offers.includes(offer.id) ? 'checked' : '';
+    const encodedOfferId = he.encode(String(offer.id));
     const item = `<div class="event__offer-selector">
-                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}"  data-offer-id="${offer.id}" ${isChecked} ${isDisabled ? 'disabled' : ''}>
-                        <label class="event__offer-label" for="event-offer-${offer.id}">
+                        <input class="event__offer-checkbox  visually-hidden" id="event-offer-${encodedOfferId}" type="checkbox" name="event-offer-${encodedOfferId}"  data-offer-id="${encodedOfferId}" ${isChecked} ${isDisabled ? 'disabled' : ''}>
+                        <label class="event__offer-label" for="event-offer-${encodedOfferId}">
                           <span class="event__offer-title">${he.encode(offer.title)}</span>
                           &plus;&euro;&nbsp;
-                          <span class="event__offer-price">${offer.price}</span>
+                          <span class="event__offer-price">${he.encode(String(offer.price))}</span>
                         </label>
                       </div>`;
     return item;
@@ -72,8 +73,8 @@ const createOffersTypeListTemplate = (type, offersData) => {
   const listType = offersData.map((offer) => {
     const isChecked = type === offer.type ? 'checked' : '';
     const itemList = `<div class="event__type-item">
-                          <input id="event-type-${offer.type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${he.encode(offer.type)}" ${isChecked}>
-                          <label class="event__type-label  event__type-label--${offer.type}" for="event-type-${offer.type}-1">${he.encode(offer.type)}</label>
+                          <input id="event-type-${he.encode(offer.type)}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${he.encode(offer.type)}" ${isChecked}>
+                          <label class="event__type-label  event__type-label--${he.encode(offer.type)}" for="event-type-${he.encode(offer.type)}-1">${he.encode(offer.type)}</label>
                         </div>`;
     return itemList;
   }).join('');
@@ -138,7 +139,7 @@ const createTemplate = (state, offersData, destinationsData) => {
 
                   <div class="event__field-group  event__field-group--destination">
                     <label class="event__label  event__type-output" for="event-destination-1">
-                      ${capitalizedType}
+                      ${he.encode(capitalizedType)}
                     </label>
                     <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(nameCity)}" list="destination-list-1" autocomplete="off" ${isDisabled ? 'disabled' : ''}>
                      ${templateListCity}
