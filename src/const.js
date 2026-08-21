@@ -10,6 +10,14 @@ const EMPTY_POINT = {
   isFavorite: false,
 };
 
+const DateFormat = {
+  DATE_FORMAT: 'MMM D',
+  MACHINE_DATE_FORMAT: 'YYYY-MM-DD',
+  HUMAN_TIME_FORMAT: 'HH:mm',
+  MACHINE_TIME_FORMAT: 'YYYY-MM-DDTHH:mm',
+  FORM_DATE_TIME_FORMAT: 'DD/MM/YY HH:mm'
+};
+
 const TimeLimit = {
   LOWER_LIMIT: 350,
   UPPER_LIMIT: 1050,
@@ -19,6 +27,11 @@ const AUTHORIZATION = `Basic ${nanoid()}`;
 const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
 
 const CITY_COUNT = 3;
+
+const HOURS_IN_DAY = 24;
+const MINUTES_IN_HOUR = 60;
+const COUNT_ZERO = 2;
+
 
 const Method = {
   GET: 'GET',
@@ -70,5 +83,9 @@ export {
   TimeLimit,
   AUTHORIZATION, END_POINT,
   CITY_COUNT,
-  Method
+  Method,
+  DateFormat,
+  HOURS_IN_DAY,
+  MINUTES_IN_HOUR,
+  COUNT_ZERO
 };

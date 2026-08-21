@@ -1,34 +1,27 @@
 import dayjs from 'dayjs';
 import durationPlugin from 'dayjs/plugin/duration';
-
-const DATE__FORMAT = 'MMM D';
-const MACHINE_DATE_FORMAT = 'YYYY-MM-DD';
-
-const HUMAN_TIME_FORMAT = 'HH:mm';
-const MACHINE_TIME_FORMAT = 'YYYY-MM-DDTHH:mm';
-
-const FORM__DATE__TIME__FORMAT = 'DD/MM/YY HH:mm';
+import { DateFormat, HOURS_IN_DAY, MINUTES_IN_HOUR, COUNT_ZERO } from '../const';
 
 dayjs.extend(durationPlugin);
 
 function humanizePointDueDate(dueDate) {
-  return dueDate ? dayjs(dueDate).format(DATE__FORMAT).toUpperCase() : '';
+  return dueDate ? dayjs(dueDate).format(DateFormat.DATE_FORMAT).toUpperCase() : '';
 }
 
 function formatMachineDate(dueDate) {
-  return dueDate ? dayjs(dueDate).format(MACHINE_DATE_FORMAT) : '';
+  return dueDate ? dayjs(dueDate).format(DateFormat.MACHINE_DATE_FORMAT) : '';
 }
 
 function humanizePointTime(dueDate) {
-  return dueDate ? dayjs(dueDate).format(HUMAN_TIME_FORMAT) : '';
+  return dueDate ? dayjs(dueDate).format(DateFormat.HUMAN_TIME_FORMAT) : '';
 }
 
 function formatMachineTime(dueDate) {
-  return dueDate ? dayjs(dueDate).format(MACHINE_TIME_FORMAT) : '';
+  return dueDate ? dayjs(dueDate).format(DateFormat.MACHINE_TIME_FORMAT) : '';
 }
 
 function formatFormDateTime(dueDate) {
-  return dueDate ? dayjs(dueDate).format(FORM__DATE__TIME__FORMAT) : '';
+  return dueDate ? dayjs(dueDate).format(DateFormat.FORM_DATE_TIME_FORMAT) : '';
 }
 
 function getEventDuration(dateFrom, dateTo) {
@@ -41,11 +34,11 @@ function getEventDuration(dateFrom, dateTo) {
     return '00M';
   }
 
-  const days = Math.floor(differenceInMinutes / (24 * 60));
-  const hours = Math.floor((differenceInMinutes % (24 * 60)) / 60);
-  const minutes = differenceInMinutes % 60;
+  const days = Math.floor(differenceInMinutes / (HOURS_IN_DAY * MINUTES_IN_HOUR));
+  const hours = Math.floor((differenceInMinutes % (HOURS_IN_DAY * MINUTES_IN_HOUR)) / MINUTES_IN_HOUR);
+  const minutes = differenceInMinutes % MINUTES_IN_HOUR;
 
-  const formatNumber = (num) => String(num).padStart(2, '0');
+  const formatNumber = (num) => String(num).padStart(COUNT_ZERO, '0');
 
   if (days > 0) {
     return `${formatNumber(days)}D ${formatNumber(hours)}H ${formatNumber(minutes)}M`;
