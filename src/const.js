@@ -72,6 +72,11 @@ const UpdateType = {
   MAJOR: 'MAJOR',
   INIT: 'INIT',
 };
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
+
 
 export {
   FilterType,
@@ -87,5 +92,6 @@ export {
   DateFormat,
   HOURS_IN_DAY,
   MINUTES_IN_HOUR,
-  COUNT_ZERO
+  COUNT_ZERO,
+  Mode
 };

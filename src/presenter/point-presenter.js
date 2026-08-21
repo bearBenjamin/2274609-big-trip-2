@@ -1,13 +1,8 @@
 import PointTripEvent from '../view/point-trip-view';
 import FormEditEvent from '../view/form-edit-view';
 import { render, replace, remove } from '../framework/render';
-import { UserAction, UpdateType } from '../const';
+import { UserAction, UpdateType, Mode } from '../const';
 import { isEscapeKey } from '../utils/common';
-
-const Mode = {
-  DEFAULT: 'DEFAULT',
-  EDITING: 'EDITING',
-};
 
 export default class PointPresenter {
   #listEventContainer = null;
@@ -112,6 +107,7 @@ export default class PointPresenter {
   destroy() {
     remove(this.#pointComponent);
     remove(this.#formEditComponent);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
   }
 
   resetView() {
