@@ -297,7 +297,7 @@ export default class FormEditEvent extends AbstractStatefulView {
       this.#datepickerTo.set('minDate', userDate);
     }
 
-    const isFormInvalid = !this._state.destination || !userDate || !this.#datepickerTo.selectedDates[0] /*!actualDateTo*/ || Number(this._state.price) <= 0;
+    const isFormInvalid = !this._state.destination || !userDate || !this.#datepickerTo.selectedDates[0] || this._state.price <= 0;
 
     this._setState({
       dateFrom: userDate || null,
@@ -314,7 +314,7 @@ export default class FormEditEvent extends AbstractStatefulView {
       this.#datepickerFrom.set('maxDate', userDate);
     }
 
-    const isFormInvalid = !this._state.destination || !userDate || !this.#datepickerFrom.selectedDates[0] || Number(this._state.price) <= 0;
+    const isFormInvalid = !this._state.destination || !userDate || !this.#datepickerFrom.selectedDates[0] || this._state.price <= 0;
 
     this._setState({
       dateTo: userDate || null,
@@ -387,7 +387,7 @@ export default class FormEditEvent extends AbstractStatefulView {
     const userPrice = evt.target.value.trim();
     const isOnlyNumbers = /^\d+$/.test(userPrice);
 
-    const isFormInvalid = !isOnlyNumbers || Number(userPrice) <= 0 || !this._state.destination || !this._state.dateFrom || !this._state.dateTo;
+    const isFormInvalid = !isOnlyNumbers || userPrice <= 0 || !this._state.destination || !this._state.dateFrom || !this._state.dateTo;
 
     this._setState({
       price: isOnlyNumbers ? Number(userPrice) : 0,
@@ -425,7 +425,7 @@ export default class FormEditEvent extends AbstractStatefulView {
         !point.destination ||
         !point.dateFrom ||
         !point.dateTo ||
-        Number(point.price) <= 0,
+        point.price <= 0,
       isDisabled: false,
       isSaving: false,
       isDeleting: false

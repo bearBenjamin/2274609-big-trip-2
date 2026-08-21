@@ -40,7 +40,7 @@ const getTripDates = (points) => {
 
 
 const getTripTotalPrice = (points, dataOffers) => points.reduce((total, point) => {
-  let pointPrice = Number(point.price || 0);
+  let pointPrice = point.price || 0;
 
   const offersByType = dataOffers.find((item) => item.type === point.type);
 
