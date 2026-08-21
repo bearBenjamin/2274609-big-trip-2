@@ -103,7 +103,7 @@ const createTemplate = (state, offersData, destinationsData) => {
 
   const capitalizedType = getCapitalizedType(type);
 
-  const nameCity = name.length !== 0 ? name : '';
+  // const nameCity = name.length !== 0 ? name : '';
 
   const dateStart = formatFormDateTime(dateFrom);
   const dateEnd = formatFormDateTime(dateTo);
@@ -141,7 +141,7 @@ const createTemplate = (state, offersData, destinationsData) => {
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${he.encode(capitalizedType)}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(nameCity)}" list="destination-list-1" autocomplete="off" ${isDisabled ? 'disabled' : ''}>
+                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(name)}" list="destination-list-1" autocomplete="off" ${isDisabled ? 'disabled' : ''}>
                      ${templateListCity}
                   </div>
 
@@ -297,9 +297,7 @@ export default class FormEditEvent extends AbstractStatefulView {
       this.#datepickerTo.set('minDate', userDate);
     }
 
-    const actualDateTo = this._state.dateTo;
-
-    const isFormInvalid = !this._state.destination || !userDate || !actualDateTo || Number(this._state.price) <= 0;
+    const isFormInvalid = !this._state.destination || !userDate || !this.#datepickerTo.selectedDates[0] /*!actualDateTo*/ || Number(this._state.price) <= 0;
 
     this._setState({
       dateFrom: userDate || null,
@@ -316,9 +314,7 @@ export default class FormEditEvent extends AbstractStatefulView {
       this.#datepickerFrom.set('maxDate', userDate);
     }
 
-    const actualDateFrom = this._state.dateFrom;
-
-    const isFormInvalid = !this._state.destination || !actualDateFrom || !userDate || Number(this._state.price) <= 0;
+    const isFormInvalid = !this._state.destination || !userDate || !this.#datepickerFrom.selectedDates[0] || Number(this._state.price) <= 0;
 
     this._setState({
       dateTo: userDate || null,
@@ -391,15 +387,7 @@ export default class FormEditEvent extends AbstractStatefulView {
     const userPrice = evt.target.value.trim();
     const isOnlyNumbers = /^\d+$/.test(userPrice);
 
-    const hasDestination = Boolean(
-      this._state.destination &&
-      (typeof this._state.destination === 'string' ||
-        typeof this._state.destination === 'number' ||
-        this._state.destination.id ||
-        this._state.destination.name)
-    );
-
-    const isFormInvalid = !isOnlyNumbers || Number(userPrice) <= 0 || !hasDestination || !this._state.dateFrom || !this._state.dateTo;
+    const isFormInvalid = !isOnlyNumbers || Number(userPrice) <= 0 || !this._state.destination || !this._state.dateFrom || !this._state.dateTo;
 
     this._setState({
       price: isOnlyNumbers ? Number(userPrice) : 0,
@@ -431,18 +419,10 @@ export default class FormEditEvent extends AbstractStatefulView {
   };
 
   static parsePointToState(point) {
-    const hasDestination = Boolean(
-      point.destination &&
-      (typeof point.destination === 'string' ||
-        typeof point.destination === 'number' ||
-        point.destination.id ||
-        point.destination.name)
-    );
-
     return {
       ...point,
       isSubmitDisabled:
-        !hasDestination ||
+        !point.destination ||
         !point.dateFrom ||
         !point.dateTo ||
         Number(point.price) <= 0,
